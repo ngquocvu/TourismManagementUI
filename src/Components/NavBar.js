@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { darkModeState } from "../containers/state";
 import { makeStyles } from "@material-ui/core";
-import clsx from "clsx";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -24,7 +25,7 @@ import WorkOutlineIcon from "@material-ui/icons/WorkOutline";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import MonetizationOnIcon from "@material-ui/icons/MonetizationOn";
 import PeopleIcon from "@material-ui/icons/People";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -56,13 +57,17 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.secondary.dark,
   },
 }));
-function NavBar(props) {
+
+function NavBar() {
+  const [isDarkMode, setIsDarkMode] = useRecoilState(darkModeState);
   const classes = useStyles();
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);
   };
-  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <div className={classes.main}>
       <Drawer
@@ -324,7 +329,7 @@ function NavBar(props) {
       </Drawer>
       <AppBar
         position="static"
-        className={props.isDarkMode ? classes.darkMode : classes.lightMode}
+        className={isDarkMode ? classes.darkMode : classes.lightMode}
       >
         <Toolbar className={classes.root}>
           <IconButton
@@ -338,12 +343,10 @@ function NavBar(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            
-          </Typography>
+          <Typography variant="h6" className={classes.title}></Typography>
           <Switch
-            checked={props.isDarkMode}
-            onChange={() => props.setIsDarkMode(!props.isDarkMode)}
+            checked={isDarkMode}
+            onChange={() => setIsDarkMode(!isDarkMode)}
             icon={<Brightness4Icon />}
             checkedIcon={<Brightness4Icon />}
           />

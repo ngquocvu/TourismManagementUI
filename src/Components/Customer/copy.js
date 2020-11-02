@@ -61,10 +61,10 @@ function CustomersTable(props) {
       await sleep(2000);
       setIsLoad(true);
       setCustomers(result.data);
-      console.log(data);
     }
     fetchData();
   }, customers);
+
   async function Delete(id) {
     fetch("http://localhost:5000/api/Customer/deleteCustomer/" + id, {
       method: "DELETE",
@@ -74,6 +74,7 @@ function CustomersTable(props) {
       },
     });
   }
+
   async function Add() {
     fetch("http://localhost:5000/api/Customer/CreateCustomer/", {
       method: "POST",

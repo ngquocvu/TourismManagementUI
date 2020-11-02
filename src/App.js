@@ -1,12 +1,13 @@
-import React from 'react';
-import Home from './Components/Home.js';
-import './App.css';
+import React from "react";
+import Home from "./containers/Home/index.js";
+import { RecoilRoot } from "recoil";
+import "./App.css";
 
 function App() {
   return (
-    <div className="App">
-      <Home/>
-    </div>
+    <RecoilRoot>
+      <Home />
+    </RecoilRoot>
   );
 }
 
