@@ -1,14 +1,16 @@
 import React from "react";
+import { useRecoilState } from "recoil";
 import { makeStyles } from "@material-ui/core/styles";
 import LinearProgress from "@material-ui/core/LinearProgress";
+import { darkModeState } from "../../containers/state";
 
-class Loading extends React.Component {
-  render() {
-    return (
-      <div>
-        <LinearProgress color="secondary" />
-      </div>
-    );
-  }
+function Loading() {
+  const [isDarkMode] = useRecoilState(darkModeState);
+  return (
+    <div>
+      <LinearProgress color={isDarkMode === true ? "primary" : "secondary"} />
+    </div>
+  );
 }
+
 export default Loading;

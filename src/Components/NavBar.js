@@ -25,6 +25,7 @@ import WorkOutlineIcon from "@material-ui/icons/WorkOutline";
 import LocationOnIcon from "@material-ui/icons/LocationOn";
 import MonetizationOnIcon from "@material-ui/icons/MonetizationOn";
 import PeopleIcon from "@material-ui/icons/People";
+import CustomListItem from "./CustomListItem";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,7 +65,7 @@ function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const handleListItemClick = (event, index) => {
+  const handleListItemClick = (index) => {
     setSelectedIndex(index);
   };
 
@@ -91,239 +92,64 @@ function NavBar() {
               </IconButton>
             </ListItem>
             <Divider />
-            <Link
-              exec
-              to="/dashboard"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 0}
-                onClick={(event) => handleListItemClick(event, 0)}
-                button
-              >
-                <ListItemIcon>
-                  <HomeIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Dashboard
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
-            <Link
-              to="/tour"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 1}
-                onClick={(event) => handleListItemClick(event, 1)}
-                button
-              >
-                <ListItemIcon>
-                  <MapIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Tour
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
-            <Link
-              to="/staff"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 2}
-                onClick={(event) => handleListItemClick(event, 2)}
-                button
-              >
-                <ListItemIcon>
-                  <PersonIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Staff
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
-            <Link
-              to="/customer"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 3}
-                onClick={(event) => handleListItemClick(event, 3)}
-                button
-              >
-                <ListItemIcon>
-                  <PeopleIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Customer
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
-            <Link
-              to="/cost"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 4}
-                onClick={(event) => handleListItemClick(event, 4)}
-                button
-              >
-                <ListItemIcon>
-                  <MonetizationOnIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Cost
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
-            <Link
-              to="/location"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 5}
-                onClick={(event) => handleListItemClick(event, 5)}
-                button
-              >
-                <ListItemIcon>
-                  <LocationOnIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Location
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
-            <Link
-              to="/job"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 6}
-                onClick={(event) => handleListItemClick(event, 6)}
-                button
-              >
-                <ListItemIcon>
-                  <WorkOutlineIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Job
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
-            <Link
-              to="/tour-price"
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <ListItem
-                selected={selectedIndex === 7}
-                onClick={(event) => handleListItemClick(event, 7)}
-                button
-              >
-                <ListItemIcon>
-                  <CreditCardIcon />
-                </ListItemIcon>
-                <ListItemText
-                  disableTypography
-                  className={classes.listItem}
-                  primary={
-                    <Typography
-                      type="body2"
-                      style={{
-                        fontWeight: "fontWeightMedium",
-                        fontSize: "h6.fontSize",
-                      }}
-                    >
-                      Tour Price
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            </Link>
+            <CustomListItem
+              icon={<HomeIcon />}
+              text="Dashboard"
+              link="/dashboard"
+              isSelected={selectedIndex === 0}
+              onClick={() => handleListItemClick(0)}
+            />
+
+            <CustomListItem
+              icon={<MapIcon />}
+              text="Tour"
+              link="/tour"
+              isSelected={selectedIndex === 1}
+              onClick={() => handleListItemClick(1)}
+            />
+            <CustomListItem
+              icon={<PersonIcon />}
+              text="Staff"
+              link="/staff"
+              isSelected={selectedIndex === 2}
+              onClick={() => handleListItemClick(2)}
+            />
+            <CustomListItem
+              icon={<PeopleIcon />}
+              text="Customer"
+              link="/customer"
+              isSelected={selectedIndex === 3}
+              onClick={() => handleListItemClick(3)}
+            />
+            <CustomListItem
+              icon={<MonetizationOnIcon />}
+              text="Cost"
+              link="/cost"
+              isSelected={selectedIndex === 4}
+              onClick={() => handleListItemClick(4)}
+            />
+            <CustomListItem
+              icon={<LocationOnIcon />}
+              text="Location"
+              link="/location"
+              isSelected={selectedIndex === 5}
+              onClick={() => handleListItemClick(5)}
+            />
+            <CustomListItem
+              icon={<WorkOutlineIcon />}
+              text="Job"
+              link="/job"
+              isSelected={selectedIndex === 6}
+              onClick={() => handleListItemClick(6)}
+            />
+
+            <CustomListItem
+              icon={<CreditCardIcon />}
+              text="Tour Price"
+              link="/tour-price"
+              isSelected={selectedIndex === 7}
+              onClick={() => handleListItemClick(7)}
+            />
           </List>
         </div>
       </Drawer>

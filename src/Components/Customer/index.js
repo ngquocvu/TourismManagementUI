@@ -8,64 +8,70 @@ import SnackBarC from "../SnackBarC";
 import MaterialTable from "material-table";
 import TableIcons from "../utilities/TableIcons";
 
+async function Delete(id) {
+  fetch("http://localhost:5000/api/customer/deleteCustomer/" + id, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+async function Add(customer) {
+  fetch("http://localhost:5000/api/Customer/CreateCustomer/", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(customer),
+  });
+}
+
+const useStyles = makeStyles((theme) => ({
+  table: {
+    minWidth: 630,
+  },
+  header: {
+    fontWeight: 900,
+  },
+  fab: {
+    margin: 0,
+    top: "auto",
+    right: 20,
+    bottom: 20,
+    left: "auto",
+    position: "fixed",
+  },
+}));
+
 function CustomersTable(props) {
   const [data, setData] = useState([]);
+  const classes = useStyles();
   const [isLoad, setIsLoad] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
-  const handleSnackBarOnClose = useCallback(() => {
-    setIsSnackBarOpen(false);
-  }, [false]);
-  const useStyles = makeStyles((theme) => ({
-    table: {
-      minWidth: 630,
+
+  const handleSnackBarOnClose =
+    (() => {
+      setIsSnackBarOpen(false);
     },
-    header: {
-      fontWeight: 900,
-    },
-    fab: {
-      margin: 0,
-      top: "auto",
-      right: 20,
-      bottom: 20,
-      left: "auto",
-      position: "fixed",
-    },
-  }));
-  const classes = useStyles();
+    [false]);
 
   useEffect(() => {
-    async function fetchData() {
-      setIsLoad(false);
-      const result = await axios(
-        "http://localhost:5000/api/Customer/getallCustomer"
-      );
-      setIsLoad(true);
-      setCustomers(result.data);
-    }
-    fetchData();
-  }, customers);
-
-  async function Delete(id) {
-    fetch("http://localhost:5000/api/customer/deleteCustomer/" + id, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+    fetchData().then(() => {
+      console.log(customers);
     });
-  }
+  }, []);
 
-  async function Add(customer) {
-    fetch("http://localhost:5000/api/Customer/CreateCustomer/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(customer),
-    });
-    console.log(JSON.stringify(customer));
+  async function fetchData() {
+    setIsLoad(false);
+    const result = await axios(
+      "http://localhost:5000/api/Customer/getallCustomer"
+    );
+    setIsLoad(true);
+    setCustomers(result.data);
   }
 
   return (
@@ -117,7 +123,7 @@ function CustomersTable(props) {
                 dataDelete.splice(index, 1);
                 setData([...dataDelete]);
                 resolve();
-              }, 10);
+              }, 1000);
             }),
         }}
         columns={[
