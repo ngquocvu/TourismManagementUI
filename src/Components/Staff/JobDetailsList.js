@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import MaterialTable from "material-table";
 import axios from "axios";
+import { RowingSharp, Update } from "@material-ui/icons";
+import { Checkbox } from "@material-ui/core";
 
 async function Delete(id) {
   fetch("http://localhost:5000/api/staff/DeleteJobDetails/" + id, {
@@ -24,30 +26,33 @@ async function Add(job) {
   console.log(JSON.stringify(job));
 }
 
-async function Edit(id, job) {
+async function Edit(id, jobs) {
   fetch("http://localhost:5000/api/staff/UpdateJobDetails/" + id, {
     method: "PUT",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(job),
+    body: JSON.stringify(jobs),
   });
+  console.log(JSON.stringify(jobs));
 }
 function JobDetailsList({ TableIcons, dataSource }) {
   useEffect(() => {
-    fetchData().then(() => {
-      console.log(allJobs);
-    });
+    fetchData().then(() => {});
   }, []);
 
   async function fetchData() {
     const result = await axios("http://localhost:5000/api/job/getalljob");
     setAllJobs(result.data);
+    console.log(result.data);
   }
   const [allJobs, setAllJobs] = useState([]);
-  const [data, setData] = useState([]);
   const [jobs, setJobs] = useState(dataSource.jobDetailsList);
+  const [state, setState] = React.useState({});
+  const handleChange = (event) => {
+    setState({ ...state, [event.target.name]: event.target.checked });
+  };
   const isSellectedJob = function (jobId) {
     var isExists = false;
     jobs.forEach((element) => {
@@ -55,6 +60,7 @@ function JobDetailsList({ TableIcons, dataSource }) {
       //console.log(element.jobId === jobId);
       if (element.jobId === jobId) {
         isExists = true;
+        console.log(element.jobId + jobId);
       }
     });
     return isExists;
@@ -68,11 +74,11 @@ function JobDetailsList({ TableIcons, dataSource }) {
         {
           title: "",
           render: (rowData) => (
-            <input
-              type="checkbox"
+            <Checkbox
               checked={isSellectedJob(rowData.jobId)}
-              readOnly
-            ></input>
+              name={"checkbox" + rowData.jobId}
+              onChange={handleChange}
+            ></Checkbox>
           ),
         },
 

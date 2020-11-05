@@ -1,86 +1,92 @@
 import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
 import React, { useState, useEffect, useCallback } from "react";
-import TableRow from "@material-ui/core/TableRow";
 import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
+import MaterialTable from "material-table";
+import TableIcons from "../utilities/TableIcons";
+
+async function Delete(id) {
+  fetch("http://localhost:5000/api/cost/Deletecost/" + id, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+async function Add(cost) {
+  fetch("http://localhost:5000/api/cost/Createcost/", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(cost),
+  });
+  console.log(JSON.stringify(cost));
+}
+
+async function Edit(id, cost) {
+  fetch("http://localhost:5000/api/cost/Updatecost/" + id, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(cost),
+  });
+}
+
+const useStyles = makeStyles((theme) => ({
+  table: {
+    minWidth: 630,
+  },
+  header: {
+    fontWeight: 900,
+  },
+  detailTable: {
+    padding: theme.spacing(4),
+    margin: theme.spacing(4),
+    background: "#d4d4d4",
+  },
+  fab: {
+    margin: 0,
+    top: "auto",
+    right: 20,
+    bottom: 20,
+    left: "auto",
+    position: "fixed",
+  },
+}));
+
 function CostsTable(props) {
   const [data, setData] = useState([]);
-  const [isLoad, setIsLoad] = useState(false);
-  const [Costs, setCosts] = useState([]);
-  const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
-  const handleSnackBarOnClose = useCallback(() => {
-    setIsSnackBarOpen(false);
-  }, [false]);
-  const useStyles = makeStyles((theme) => ({
-    table: {
-      minWidth: 630,
-    },
-    title: {
-      flex: "1 1 100%",
-      textAlign: "left",
-      paddingLeft: theme.spacing(2),
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(1),
-      fontWeight: "bold",
-    },
-    header: {
-      fontWeight: 900,
-    },
-    fab: {
-      margin: 0,
-      top: "auto",
-      right: 20,
-      bottom: 20,
-      left: "auto",
-      position: "fixed",
-    },
-  }));
   const classes = useStyles();
+  const [isLoad, setIsLoad] = useState(false);
+  const [costs, setcosts] = useState([]);
+  const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
+
+  const handleSnackBarOnClose =
+    (() => {
+      setIsSnackBarOpen(false);
+    },
+    [false]);
+
   useEffect(() => {
-    async function fetchData() {
-      setIsLoad(false);
-      const result = await axios("http://localhost:5000/api/Cost/getallCost");
-      setCosts(result.data);
-      console.log(data);
-      setIsLoad(true);
-    }
-    fetchData();
-  }, Costs);
-  async function Delete(id) {
-    fetch("http://localhost:5000/api/Cost/deleteCost/" + id, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+    fetchData().then(() => {
+      console.log(costs);
     });
-  }
-  async function Add() {
-    fetch("http://localhost:5000/api/Cost/CreateCost/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        CostId: "",
-        fullName: "",
-        dateOfBirhth: "01/02/1999",
-      }),
-    });
+  }, []);
+
+  async function fetchData() {
+    setIsLoad(false);
+    const result = await axios("http://localhost:5000/api/cost/getallcost");
+    setIsLoad(true);
+    setcosts(result.data);
   }
 
   return (
@@ -90,66 +96,66 @@ function CostsTable(props) {
       ) : (
         <React.Fragment> </React.Fragment>
       )}
-      <Paper>
-        <TableContainer component={Paper}>
-          <Typography
-            className={classes.title}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
-            Cost Table
-          </Typography>
-          <Table aria-label="sticky table" className={classes.table}>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell align="right">Name</TableCell>
-                <TableCell align="right">Cost</TableCell>
-                <TableCell align="right">Description</TableCell>
-                <TableCell align="right"></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Costs.map((Cost) => (
-                <TableRow key={Cost.CostId}>
-                  <TableCell component="th" scope="row">
-                    {Cost.costId}
-                  </TableCell>
-                  <TableCell align="right">{Cost.costName}</TableCell>
-                  <TableCell align="right">{Cost.price}</TableCell>
-                  <TableCell align="right">{Cost.description}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      aria-label="edit"
-                      onClick={() => {
-                        Add();
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => {
-                        Delete(Cost.CostId);
-                        setCosts(
-                          Costs.filter((item) => item.CostId !== Cost.CostId)
-                        );
-                        setIsSnackBarOpen(true);
-                        setTimeout(() => {
-                          setIsSnackBarOpen(false);
-                        }, 5000);
-                      }}
-                    >
-                      <DeleteIcon color="secondary" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+      <MaterialTable
+        title="Cost"
+        icons={TableIcons}
+        data={costs.map((d) => ({ ...d }))}
+        options={{
+          actionsColumnIndex: -1,
+        }}
+        editable={{
+          onRowAdd: (newData) =>
+            new Promise((resolve, reject) => {
+              const last =
+                costs[Object.keys(costs)[Object.keys(costs).length - 1]];
+              newData.costId = last.costId + 1;
+              setcosts([...costs, newData]);
+              Add(newData);
+              resolve();
+            }),
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                const dataUpdate = [...costs];
+                const index = oldData.tableData.id;
+                dataUpdate[index] = newData;
+                setcosts([...dataUpdate]);
+                Edit(oldData.costId, newData);
+                resolve();
+              }, 100);
+            }),
+          onRowDelete: (oldData) =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                const dataDelete = [...data];
+                const index = oldData.tableData.id;
+                Delete(oldData.costId);
+                setcosts(
+                  costs.filter((item) => item.costId !== oldData.costId)
+                );
+                dataDelete.splice(index, 1);
+                setData([...dataDelete]);
+                resolve();
+              }, 100);
+            }),
+        }}
+        columns={[
+          {
+            title: "ID",
+            field: "costId",
+            editable: "never",
+          },
+          { title: "Name", field: "costName" },
+          {
+            title: "Price",
+            field: "price",
+          },
+          {
+            title: "Description",
+            field: "description",
+          },
+        ]}
+      />
       <Fab
         aria-label="Add"
         className={classes.fab}

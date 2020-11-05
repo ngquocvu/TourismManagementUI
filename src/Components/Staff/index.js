@@ -1,13 +1,15 @@
-import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
 import MaterialTable from "material-table";
 import TableIcons from "../utilities/TableIcons";
-import JobDetailsList from "./JobDetailsList";
+import JobDetails from "./JobDetails";
+import { useRecoilState } from "recoil";
+import { darkModeState } from "../../containers/state";
 
 async function Delete(id) {
   fetch("http://localhost:5000/api/staff/deletestaff/" + id, {
@@ -16,6 +18,17 @@ async function Delete(id) {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
+  });
+}
+async function DeleteJobsDetail(id) {
+  var selJobsList = new Array();
+  fetch("http://localhost:5000/api/staff/UpdateJobDetails/" + id, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(selJobsList),
   });
 }
 
@@ -52,7 +65,6 @@ const useStyles = makeStyles((theme) => ({
   detailTable: {
     padding: theme.spacing(4),
     margin: theme.spacing(4),
-    background: "#d4d4d4",
   },
   fab: {
     margin: 0,
@@ -70,6 +82,7 @@ function StaffsTable(props) {
   const [isLoad, setIsLoad] = useState(false);
   const [staffs, setstaffs] = useState([]);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
+  const [isDarkMode] = useRecoilState(darkModeState);
 
   const handleSnackBarOnClose =
     (() => {
@@ -93,7 +106,7 @@ function StaffsTable(props) {
   return (
     <div>
       {!isLoad ? (
-        <LinearProgress color={!props.isDarkMode ? "secondary" : "primary"} />
+        <LinearProgress color={isDarkMode ? "secondary" : "primary"} />
       ) : (
         <React.Fragment> </React.Fragment>
       )}
@@ -107,11 +120,18 @@ function StaffsTable(props) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              const last =
+              var last =
                 staffs[Object.keys(staffs)[Object.keys(staffs).length - 1]];
-              newData.staffId = last.staffId + 1;
+              if (last === undefined) {
+                newData.staffId = 1;
+              } else {
+                newData.staffId = last.staffId + 1;
+              }
+              console.log(newData.staffId);
+
               setstaffs([...staffs, newData]);
               Add(newData);
+              fetchData();
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
@@ -131,6 +151,7 @@ function StaffsTable(props) {
                 const dataDelete = [...data];
                 const index = oldData.tableData.id;
                 Delete(oldData.staffId);
+                DeleteJobsDetail(oldData.staffId);
                 setstaffs(
                   staffs.filter((item) => item.staffId !== oldData.staffId)
                 );
@@ -145,29 +166,35 @@ function StaffsTable(props) {
             title: "ID",
             field: "staffId",
             editable: "never",
+            type: "numeric",
           },
           { title: "Fullname", field: "fullName" },
           {
             title: "Gender",
             field: "gender",
+            type: "string",
           },
           {
             title: "ID Number",
             field: "identityCardNumber",
+            type: "string",
           },
           {
             title: "Date Of Birth",
             field: "dateOfBirhth",
+            type: "string",
             initialEditValue: new Date().toISOString(),
             render: (rowData) => new Date(rowData.dateOfBirhth).toDateString(),
           },
           {
             title: "phone Number",
             field: "phoneNumber",
+            type: "string",
           },
           {
             title: "Email",
             field: "email",
+            type: "string",
           },
         ]}
         detailPanel={[
@@ -175,12 +202,11 @@ function StaffsTable(props) {
             tooltip: "Job details",
             render: (rowData) => {
               return (
-                <div className={classes.detailTable}>
-                  <JobDetailsList
-                    TableIcons={TableIcons}
-                    dataSource={rowData}
-                  />
-                </div>
+                <JobDetails
+                  className={classes.detailTable}
+                  selfJob={rowData.jobDetailsList}
+                  staffId={rowData.staffId}
+                />
               );
             },
           },

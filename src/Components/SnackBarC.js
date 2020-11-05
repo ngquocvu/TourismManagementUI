@@ -14,7 +14,7 @@ export default function SnackbarC(props) {
         }}
         open={props.open}
         autoHideDuration={6000}
-        message="Successfully Deleted !"
+        message={props.message}
         action={
           <React.Fragment>
             <IconButton
