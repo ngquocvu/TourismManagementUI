@@ -1,14 +1,15 @@
-import { Checkbox } from "@material-ui/core";
-import { Check } from "@material-ui/icons";
 import CheckBox from "@material-ui/core/CheckBox";
 import Button from "@material-ui/core/Button";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import SnackbarC from "../SnackBarC";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import SnackBarC from "../SnackBarC";
+import { useRecoilState } from "recoil";
+import { darkModeState } from "../../containers/state";
 
 async function Update(id, jobs) {
-  fetch("http://localhost:5000/api/staff/UpdateJobDetails/" + id, {
+  await fetch("http://localhost:5000/api/staff/UpdateJobDetails/" + id, {
     method: "PUT",
     headers: {
       Accept: "application/json",
@@ -19,81 +20,128 @@ async function Update(id, jobs) {
   console.log(JSON.stringify(jobs));
 }
 
-function JobDetails({ selfJob, staffId }) {
+function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
+  const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
   const [allJobs, setAllJobs] = useState([]);
-  const [jobs, setJobs] = useState(selfJob);
+  // const [jobs] = useState(selfJob);
+  const [message, setMessage] = useState();
+  const [isLoad, setIsLoad] = useState(false);
+  const [chosenJobs, setChosenJobs] = useState([]);
+  const [isDarkMode] = useRecoilState(darkModeState);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const isSellectedJob = function (jobId) {
-    var isExists = false;
-    jobs.map((element) => {
-      if (element.jobId === jobId) {
-        isExists = true;
-      }
-    });
-    return isExists;
+  useEffect(() => {
+    setChosenJobs(
+      selfJob.map(({ jobId, staffId }) => ({
+        jobId,
+        staffId,
+      }))
+    );
+  }, [selfJob]);
+
+  const handleSnackBarOnClose = () => {
+    setIsSnackBarOpen(false);
   };
+
+  const handleClick = () => {
+    setIsSnackBarOpen(true);
+    setTimeout(() => {
+      setIsSnackBarOpen(false);
+    }, 3000);
+  };
+
+  // const isSellectedJob = function (jobId) {
+  //   var isExists = false;
+  //   jobs.map((element) => {
+  //     if (element.jobId === jobId) {
+  //       isExists = true;
+  //     }
+  //   });
+  //   return isExists;
+  // };
+
+  async function fetchStaffData() {
+    const result = await axios(
+      "http://localhost:5000/api/staff/getstaff/" + staffId
+    );
+    return result.data.jobDetailsList;
+  }
 
   async function fetchData() {
     await axios("http://localhost:5000/api/job/getalljob").then((result) => {
-      let newData = result.data;
-      newData.forEach((job) => {
-        job.isChecked = isSellectedJob(job.jobId);
-      });
-      setAllJobs(newData);
+      // let newData = result.data;
+      // newData.forEach((job) => {
+      //   job.isChecked = isSellectedJob(job.jobId);
+      // });
+      setAllJobs(result.data);
+      //console.log(result);
     });
   }
 
   const handleCheck = (event) => {
-    let newData = [...allJobs];
-    newData.forEach((job) => {
-      if (job.jobName === event.target.name)
-        job.isChecked = event.target.checked;
-    });
-    setAllJobs(newData);
-    console.log(newData);
+    // let newData = [...allJobs];
+    // newData.forEach((job) => {
+    //   if (job.jobName === event.target.name)
+    //     job.isChecked = event.target.checked;
+    // });
+    // setAllJobs(newData);
+    const jobId = parseInt(event.target.name);
+    if (chosenJobs.find((j) => j.jobId === jobId)) {
+      setChosenJobs(chosenJobs.filter((j) => j.jobId !== jobId));
+    } else {
+      setChosenJobs([...chosenJobs, { staffId, jobId }]);
+    }
   };
 
   const onSubmit = () => {
-    var selJobsList = new Array();
-    allJobs.forEach((job) => {
-      if (job.isChecked == true) {
-        var sellectedJobs = {
-          jobId: job.jobId,
-          staffId: staffId,
-        };
-        selJobsList.push(sellectedJobs);
-      }
+    setIsLoad(true);
+    Update(staffId, chosenJobs).then(() => {
+      fetchStaffData().then((Jobs) => {
+        onUpdate(staffId, Jobs);
+      });
+      setIsLoad(false);
+      handleClick();
     });
-    Update(staffId, selJobsList);
-    alert("Job of Staff Has Been Updated");
+    setMessage("Staff [" + staffId + "] 's job has been updated ");
+
+    //fetchStaff();
   };
 
   return (
     <div>
+      {isLoad ? (
+        <LinearProgress color={isDarkMode ? "primary" : "secondary"} />
+      ) : (
+        <React.Fragment> </React.Fragment>
+      )}
       {allJobs.map((eachJob) => (
-        <ul>
+        <ul key={eachJob.jobId}>
           <FormControlLabel
-            key={eachJob.id}
+            key={eachJob.jobId}
             control={
               <CheckBox
-                checked={eachJob.isChecked}
-                name={eachJob.jobName}
+                checked={!!chosenJobs.find((j) => j.jobId === eachJob.jobId)}
+                name={eachJob.jobId}
                 onClick={handleCheck}
               />
             }
-            label={eachJob.jobId + " : " + eachJob.jobName}
+            label={eachJob.jobName}
           />
         </ul>
       ))}
       <ul>
-        <Button variant="contained" onClick={onSubmit} href="#outlined-buttons">
+        <Button variant="contained" onClick={onSubmit}>
           Update
         </Button>
       </ul>
+      <SnackBarC
+        open={isSnackBarOpen}
+        handleSnackBarOnClose={handleSnackBarOnClose}
+        message={message}
+      />
     </div>
   );
 }

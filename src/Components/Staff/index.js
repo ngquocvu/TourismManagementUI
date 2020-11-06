@@ -96,24 +96,39 @@ function StaffsTable(props) {
     });
   }, []);
 
+  useEffect(() => {
+    console.log(staffs);
+  }, [staffs]);
+
   async function fetchData() {
     setIsLoad(false);
     const result = await axios("http://localhost:5000/api/staff/getallstaff");
     setIsLoad(true);
     setstaffs(result.data);
+    console.log(result.data);
   }
+
+  const updateJobDetails = (staffId, jobDetails) => {
+    setstaffs(
+      staffs.map((s) => {
+        if (s.staffId === staffId) s.jobDetailsList = jobDetails;
+        return s;
+      })
+    );
+  };
 
   return (
     <div>
       {!isLoad ? (
-        <LinearProgress color={isDarkMode ? "secondary" : "primary"} />
+        <LinearProgress color={isDarkMode ? "primary" : "secondary"} />
       ) : (
         <React.Fragment> </React.Fragment>
       )}
       <MaterialTable
         title="Staff"
         icons={TableIcons}
-        data={staffs.map((d) => ({ ...d }))}
+        //data=staffs.map((d) => ({ ...d }))
+        data={staffs}
         options={{
           actionsColumnIndex: -1,
         }}
@@ -206,6 +221,8 @@ function StaffsTable(props) {
                   className={classes.detailTable}
                   selfJob={rowData.jobDetailsList}
                   staffId={rowData.staffId}
+                  fetchStaff={fetchData}
+                  onUpdate={updateJobDetails}
                 />
               );
             },
@@ -219,10 +236,6 @@ function StaffsTable(props) {
       >
         <AddIcon />
       </Fab>
-      <SnackBarC
-        open={isSnackBarOpen}
-        handleSnackBarOnClose={handleSnackBarOnClose}
-      />
     </div>
   );
 }
