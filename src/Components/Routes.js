@@ -10,6 +10,7 @@ const CostsTable = lazy(() => import("./Cost"));
 const LocationsTable = lazy(() => import("./Location"));
 const ToursTable = lazy(() => import("./Tour"));
 const JobsTable = lazy(() => import("./Job"));
+const TouristGroup = lazy(() => import("./TouristGroup"));
 const TourPricesTable = lazy(() => import("./TourPrice"));
 function Routes() {
   const [isDarkMode] = useRecoilState(darkModeState);
@@ -41,6 +42,9 @@ function Routes() {
       </Route>
       <Route exact path="/tour-price">
         <TourPricesTable isDarkMode={isDarkMode} />
+      </Route>
+      <Route exact path="/tourist-group">
+        <TouristGroup isDarkMode={isDarkMode} />
       </Route>
     </Switch>
   );

@@ -109,8 +109,8 @@ function NavBar() {
             />
             <CustomListItem
               icon={<PersonIcon />}
-              text="Staff"
-              link="/staff"
+              text="Tourist Group"
+              link="/tourist-group"
               isSelected={selectedIndex === 2}
               onClick={() => handleListItemClick(2)}
             />
@@ -149,6 +149,13 @@ function NavBar() {
               link="/tour-price"
               isSelected={selectedIndex === 7}
               onClick={() => handleListItemClick(7)}
+            />
+            <CustomListItem
+              icon={<PersonIcon />}
+              text="Staff"
+              link="/staff"
+              isSelected={selectedIndex === 8}
+              onClick={() => handleListItemClick(8)}
             />
           </List>
         </div>

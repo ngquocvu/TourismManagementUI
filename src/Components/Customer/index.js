@@ -6,6 +6,8 @@ import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
 import MaterialTable from "material-table";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 import TableIcons from "../utilities/TableIcons";
 import { useRecoilState } from "recoil";
 import { darkModeState } from "../../containers/state";
@@ -21,7 +23,7 @@ async function Delete(id) {
 }
 
 async function Add(customer) {
-  fetch("http://localhost:5000/api/customer/Createcustomer/1", {
+  fetch("http://localhost:5000/api/customer/Createcustomer/", {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -96,7 +98,7 @@ function CustomersTable(props) {
   return (
     <div>
       {!isLoad ? (
-        <LinearProgress color={isDarkMode ? "secondary" : "primary"} />
+        <LinearProgress color={isDarkMode ? "primary" : "secondary"} />
       ) : (
         <React.Fragment> </React.Fragment>
       )}
@@ -122,7 +124,7 @@ function CustomersTable(props) {
               console.log(newData.customerId);
 
               setcustomers([...customers, newData]);
-              Add(newData).then(fetchData());
+              Add(newData).then(() => fetchData);
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
@@ -130,10 +132,12 @@ function CustomersTable(props) {
               setTimeout(() => {
                 const dataUpdate = [...customers];
                 const index = oldData.tableData.id;
+                newData.touristGroupDetailsOfCustomerList = [];
                 dataUpdate[index] = newData;
                 setcustomers([...dataUpdate]);
                 Edit(oldData.customerId, newData);
                 resolve();
+                console.log(newData);
               }, 100);
             }),
           onRowDelete: (oldData) =>
@@ -159,33 +163,68 @@ function CustomersTable(props) {
             field: "customerId",
             editable: "never",
           },
-          { title: "Fullname", field: "fullName" },
+          {
+            title: "Fullname",
+            field: "fullName",
+            validate: (rowData) =>
+              rowData.fullName < 1 ? "Full name must not be empty" : true,
+          },
           {
             title: "Gender",
             field: "gender",
             type: "string",
+            editComponent: (t) => (
+              <Select
+                value={t.value}
+                onChange={(e) => {
+                  t.onChange(e.target.value);
+                }}
+              >
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+              </Select>
+            ),
           },
           {
             title: "ID Number",
             field: "identityCardNumber",
             type: "string",
+            validate: (rowData) =>
+              rowData.identityCardNumber < 1
+                ? "ID card number must not be empty"
+                : true,
           },
           {
             title: "Date Of Birth",
             field: "dateOfBirhth",
-            type: "string",
             initialEditValue: new Date().toISOString(),
+            type: "date",
+            validate: (rowData) =>
+              new Date(rowData.dateOfBirhth).getFullYear().toFixed() >
+                new Date(Date.now()).getFullYear().toFixed() - 16 ||
+              new Date(rowData.dateOfBirhth).getFullYear().toFixed() >
+                new Date(Date.now()).getFullYear().toFixed()
+                ? "You must be older than 16 years old !"
+                : true,
             render: (rowData) => new Date(rowData.dateOfBirhth).toDateString(),
           },
           {
             title: "phone Number",
             field: "phoneNumber",
             type: "string",
+            validate: (rowData) =>
+              rowData.phoneNumber < 1 ? "Phone number must not be empty" : true,
           },
           {
             title: "Email",
             field: "email",
             type: "string",
+            validate: (rowData) =>
+              /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+                rowData.email
+              )
+                ? true
+                : "Incorrect format of email address",
           },
         ]}
       />

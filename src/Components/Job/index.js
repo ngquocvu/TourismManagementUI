@@ -135,22 +135,13 @@ function JobsTable(props) {
               }, 1000);
             }),
         }}
-        columns={[
-          {
-            title: "ID",
-            field: "jobId",
-            editable: "never",
+        columns={[{ title: "Name", field: "jobName" }]}
+        localization={{
+          header: {
+            actions: "",
           },
-          { title: "Name", field: "jobName" },
-        ]}
+        }}
       />
-      <Fab
-        aria-label="Add"
-        className={classes.fab}
-        color={props.isDarkMode ? "dark" : "secondary"}
-      >
-        <AddIcon />
-      </Fab>
       <SnackBarC
         open={isSnackBarOpen}
         handleSnackBarOnClose={handleSnackBarOnClose}

@@ -99,7 +99,7 @@ function LocationsTable(props) {
         <React.Fragment> </React.Fragment>
       )}
       <MaterialTable
-        title="location"
+        title="Location"
         icons={TableIcons}
         data={locations.map((d) => ({ ...d }))}
         options={{
@@ -147,24 +147,21 @@ function LocationsTable(props) {
         }}
         columns={[
           {
-            title: "ID",
-            field: "locationId",
-            editable: "never",
+            title: "Name",
+            field: "locationName",
+            validate: (rowData) =>
+              rowData.locationName < 1
+                ? "Location Name must not be empty"
+                : true,
           },
-          { title: "Name", field: "locationName" },
           {
             title: "Country",
             field: "country",
+            validate: (rowData) =>
+              rowData.country < 1 ? "Country Name must not be empty" : true,
           },
         ]}
       />
-      <Fab
-        aria-label="Add"
-        className={classes.fab}
-        color={props.isDarkMode ? "dark" : "secondary"}
-      >
-        <AddIcon />
-      </Fab>
       <SnackBarC
         open={isSnackBarOpen}
         handleSnackBarOnClose={handleSnackBarOnClose}

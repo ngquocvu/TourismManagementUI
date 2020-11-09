@@ -2,6 +2,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import React, { useState, useEffect } from "react";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
@@ -145,8 +147,7 @@ function StaffsTable(props) {
               console.log(newData.staffId);
 
               setstaffs([...staffs, newData]);
-              Add(newData);
-              fetchData();
+              Add(newData).then(fetchData());
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
@@ -157,6 +158,7 @@ function StaffsTable(props) {
                 dataUpdate[index] = newData;
                 setstaffs([...dataUpdate]);
                 Edit(oldData.staffId, newData);
+                console.log(newData);
                 resolve();
               }, 100);
             }),
@@ -183,33 +185,54 @@ function StaffsTable(props) {
             editable: "never",
             type: "numeric",
           },
-          { title: "Fullname", field: "fullName" },
+          {
+            title: "Fullname",
+            field: "fullName",
+            validate: (rowData) =>
+              rowData.fullName === "" ? "Name cannot be empty" : true,
+          },
           {
             title: "Gender",
             field: "gender",
-            type: "string",
+            editComponent: (t) => (
+              <Select
+                value={t.value}
+                onChange={(e) => {
+                  t.onChange(e.target.value);
+                }}
+              >
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+              </Select>
+            ),
           },
           {
             title: "ID Number",
             field: "identityCardNumber",
-            type: "string",
+            validate: (rowData) =>
+              rowData.identityCardNumber === "" ? "Invalid ID number" : true,
           },
           {
             title: "Date Of Birth",
             field: "dateOfBirhth",
-            type: "string",
+            type: "date",
             initialEditValue: new Date().toISOString(),
             render: (rowData) => new Date(rowData.dateOfBirhth).toDateString(),
           },
           {
             title: "phone Number",
             field: "phoneNumber",
-            type: "string",
           },
           {
             title: "Email",
             field: "email",
             type: "string",
+            validate: (rowData) =>
+              /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+                rowData.email
+              )
+                ? true
+                : "Incorrect format of email address",
           },
         ]}
         detailPanel={[
@@ -228,14 +251,12 @@ function StaffsTable(props) {
             },
           },
         ]}
+        localization={{
+          header: {
+            actions: "",
+          },
+        }}
       />
-      <Fab
-        aria-label="Add"
-        className={classes.fab}
-        color={props.isDarkMode ? "dark" : "secondary"}
-      >
-        <AddIcon />
-      </Fab>
     </div>
   );
 }

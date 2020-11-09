@@ -151,17 +151,29 @@ function TourPricesTable(props) {
             field: "tourPriceId",
             editable: "never",
           },
-          { title: "Price", field: "price" },
+          {
+            title: "Price",
+            field: "price",
+            render: (rowData) => rowData.price + " VND",
+          },
           {
             title: "Start date",
             field: "startDate",
             initialEditValue: new Date().toISOString(),
+            type: "date",
             render: (rowData) => new Date(rowData.startDate).toDateString(),
           },
           {
             title: "End date",
             field: "endDate",
             initialEditValue: new Date().toISOString(),
+            type: "date",
+            initialEditValue: new Date().toISOString(),
+            render: (rowData) => new Date(rowData.endDate).toDateString(),
+            validate: (rowData) =>
+              new Date(rowData.endDate) < new Date(rowData.startDate)
+                ? "Start date must be after end date!"
+                : true,
             render: (rowData) => new Date(rowData.endDate).toDateString(),
           },
         ]}
