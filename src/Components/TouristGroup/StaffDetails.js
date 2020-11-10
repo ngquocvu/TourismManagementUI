@@ -21,19 +21,19 @@ import Grid from "@material-ui/core/Grid";
 import { darkModeState } from "../../containers/state";
 import ListSubheader from "@material-ui/core/ListSubheader";
 
-async function Update(id, customers) {
+async function Update(id, staffs) {
   await fetch(
-    "http://localhost:5000/api/touristGroup/UpdateTourDetailsOfCustomer/" + id,
+    "http://localhost:5000/api/touristGroup/UpdateTourDetailsOfStaff/" + id,
     {
       method: "PUT",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(customers),
+      body: JSON.stringify(staffs),
     }
   );
-  console.log(JSON.stringify(customers));
+  console.log(JSON.stringify(staffs));
 }
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -60,28 +60,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
+function StaffDetails({ staffList, touristGroupId, onUpdate }) {
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
-  const [allCustomers, setAllCustomers] = useState([]);
+  const [allStaffs, setAllStaffs] = useState([]);
   const [message, setMessage] = useState();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoad, setIsLoad] = useState(false);
-  const [chosenCustomers, setChosenCustomers] = useState([]);
+  const [chosenStaffs, setChosenStaffs] = useState([]);
   const [isDarkMode] = useRecoilState(darkModeState);
-  const [totalCustomer, setTotalCustomer] = useState(1);
+  const [totalStaff, setTotalStaff] = useState(1);
   const classes = useStyles();
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
-    setChosenCustomers(
-      customerList.map(({ customerId, touristGroupId }) => ({
-        customerId,
+    setChosenStaffs(
+      staffList.map(({ staffId, touristGroupId }) => ({
+        staffId,
         touristGroupId,
       }))
     );
-  }, [customerList]);
+  }, [staffList]);
 
   const handleSnackBarOnClose = () => {
     setIsSnackBarOpen(false);
@@ -98,45 +98,43 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
     const result = await axios(
       "http://localhost:5000/api/touristgroup/gettouristgroup/" + touristGroupId
     );
-    return result.data.touristGroupDetailsOfCustomerList;
+    return result.data.touristGroupDetailsOfStaffList;
   }
 
   async function fetchData() {
-    await axios("http://localhost:5000/api/customer/getallcustomer").then(
+    await axios("http://localhost:5000/api/staff/getallstaff").then(
       (result) => {
-        setAllCustomers(result.data);
+        setAllStaffs(result.data);
       }
     );
   }
 
   const handleCheck = (event) => {
-    const customerId = parseInt(event.target.name);
-    if (chosenCustomers.find((j) => j.customerId === customerId)) {
-      setChosenCustomers(
-        chosenCustomers.filter((j) => j.customerId !== customerId)
-      );
+    const staffId = parseInt(event.target.name);
+    if (chosenStaffs.find((j) => j.staffId === staffId)) {
+      setChosenStaffs(chosenStaffs.filter((j) => j.staffId !== staffId));
     } else {
-      setChosenCustomers([...chosenCustomers, { touristGroupId, customerId }]);
+      setChosenStaffs([...chosenStaffs, { touristGroupId, staffId }]);
     }
   };
 
   const onSubmit = () => {
     setIsLoad(true);
-    Update(touristGroupId, chosenCustomers).then(() => {
-      fetchGroupData().then((Customers) => {
-        onUpdate(touristGroupId, Customers);
+    Update(touristGroupId, chosenStaffs).then(() => {
+      fetchGroupData().then((Staffs) => {
+        onUpdate(touristGroupId, Staffs);
       });
       setIsLoad(false);
       handleClick();
     });
-    setMessage("Staff [" + touristGroupId + "] 's customer has been updated ");
+    setMessage("Staff [" + touristGroupId + "] 's staff has been updated ");
     setIsOpen(false);
   };
 
-  const CustomerList = () => (
+  const StaffList = () => (
     <div>
       <ListSubheader component="div" id="nested-list-subheader">
-        Customer List ({customerList.length} persons){"   "}
+        Staff List ({staffList.length} persons){"   "}
         <Tooltip title="Edit" arrow>
           <IconButton
             size="small"
@@ -145,24 +143,24 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
             endIcon={<EditIcon />}
             onClick={() => setIsOpen(true)}
             color="secondary"
-            aria-label="Edit Customer"
+            aria-label="Edit Staff"
           >
             <EditIcon />
           </IconButton>
         </Tooltip>
       </ListSubheader>
       <Grid container spacing={2}>
-        {customerList.map((c) => (
+        {staffList.map((c) => (
           <Grid item xs={3}>
             <ListItem>
               <ListItemAvatar>
                 <Avatar variant="square">
-                  {c.customer.fullName.split(" ").pop().charAt(0)}
+                  {c.staff.fullName.split(" ").pop().charAt(0)}
                 </Avatar>
               </ListItemAvatar>
               <ListItemText
-                primary={c.customer.fullName + " (" + c.customer.email + ")"}
-              />
+                primary={c.staff.fullName + " (" + c.staff.email + ")"}
+              />{" "}
             </ListItem>
           </Grid>
         ))}
@@ -171,24 +169,22 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
     </div>
   );
 
-  const EditCustomer = () => (
+  const EditStaff = () => (
     <React.Fragment>
-      {allCustomers.map((eachCustomer) => (
-        <ul key={eachCustomer.customerId}>
+      {allStaffs.map((eachStaff) => (
+        <ul key={eachStaff.staffId}>
           <FormControlLabel
-            key={eachCustomer.customerId}
+            key={eachStaff.staffId}
             control={
               <CheckBox
                 checked={
-                  !!chosenCustomers.find(
-                    (j) => j.customerId === eachCustomer.customerId
-                  )
+                  !!chosenStaffs.find((j) => j.staffId === eachStaff.staffId)
                 }
-                name={eachCustomer.customerId}
+                name={eachStaff.staffId}
                 onClick={handleCheck}
               />
             }
-            label={eachCustomer.fullName}
+            label={eachStaff.fullName}
           />
         </ul>
       ))}
@@ -224,7 +220,7 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
         <React.Fragment></React.Fragment>
       )}
 
-      {isOpen === false ? <CustomerList /> : <EditCustomer />}
+      {isOpen === false ? <StaffList /> : <EditStaff />}
 
       <SnackBarC
         open={isSnackBarOpen}
@@ -235,4 +231,4 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
   );
 }
 
-export default CustomerDetails;
+export default StaffDetails;

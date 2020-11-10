@@ -1,10 +1,12 @@
 import CheckBox from "@material-ui/core/CheckBox";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
+import Paper from "@material-ui/core/Paper";
 import { useRecoilState } from "recoil";
 import { darkModeState } from "../../containers/state";
 
@@ -20,7 +22,19 @@ async function Update(id, jobs) {
   console.log(JSON.stringify(jobs));
 }
 
+const useStyles = makeStyles((theme) => ({
+  main: {
+    padding: theme.spacing(2),
+    margin: theme.spacing(2),
+  },
+  flexList: {
+    display: "flex",
+    flexDirection: "row",
+    padding: 0,
+  },
+}));
 function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
+  const classes = useStyles();
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
   const [allJobs, setAllJobs] = useState([]);
   // const [jobs] = useState(selfJob);
@@ -82,12 +96,6 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
   }
 
   const handleCheck = (event) => {
-    // let newData = [...allJobs];
-    // newData.forEach((job) => {
-    //   if (job.jobName === event.target.name)
-    //     job.isChecked = event.target.checked;
-    // });
-    // setAllJobs(newData);
     const jobId = parseInt(event.target.name);
     if (chosenJobs.find((j) => j.jobId === jobId)) {
       setChosenJobs(chosenJobs.filter((j) => j.jobId !== jobId));
@@ -111,7 +119,7 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
   };
 
   return (
-    <div>
+    <Paper variant="outlined" className={classes.main}>
       {isLoad ? (
         <LinearProgress color={isDarkMode ? "primary" : "secondary"} />
       ) : (
@@ -133,7 +141,12 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
         </ul>
       ))}
       <ul>
-        <Button variant="contained" onClick={onSubmit}>
+        <Button
+          vvariant="outlined"
+          size="small"
+          color="secondary"
+          onClick={onSubmit}
+        >
           Update
         </Button>
       </ul>
@@ -142,7 +155,7 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
         handleSnackBarOnClose={handleSnackBarOnClose}
         message={message}
       />
-    </div>
+    </Paper>
   );
 }
 

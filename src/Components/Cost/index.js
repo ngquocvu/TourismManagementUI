@@ -149,6 +149,7 @@ function CostsTable(props) {
           {
             title: "Price",
             field: "price",
+            type: "currency",
           },
           {
             title: "Description",

@@ -154,7 +154,7 @@ function TourPricesTable(props) {
           {
             title: "Price",
             field: "price",
-            render: (rowData) => rowData.price + " VND",
+            type: "currency",
           },
           {
             title: "Start date",

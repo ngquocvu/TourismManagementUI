@@ -155,10 +155,10 @@ function LocationsTable(props) {
                 : true,
           },
           {
-            title: "Country",
-            field: "country",
+            title: "City",
+            field: "city",
             validate: (rowData) =>
-              rowData.country < 1 ? "Country Name must not be empty" : true,
+              rowData.country < 1 ? "City Name must not be empty" : true,
           },
         ]}
       />

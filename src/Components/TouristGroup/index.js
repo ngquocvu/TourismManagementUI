@@ -3,10 +3,12 @@ import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import AssignmentIndIcon from "@material-ui/icons/AssignmentInd";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
 import MaterialTable from "material-table";
 import TableIcons from "../utilities/TableIcons";
+import TextareaAutosize from "@material-ui/core/TextareaAutosize";
 import { useRecoilState } from "recoil";
 import Select from "@material-ui/core/Select";
 import MonetizationOnIcon from "@material-ui/icons/MonetizationOn";
@@ -15,6 +17,9 @@ import { darkModeState } from "../../containers/state";
 import CostDetails from "./CostDetails";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import CustomerDetails from "./CustomerDetails";
+import StaffDetails from "./StaffDetails";
+import CustomDialog from "./CustomDialog";
+import Button from "@material-ui/core/Button";
 
 async function Delete(id) {
   fetch("http://localhost:5000/api/touristGroup/deletetouristGroup/" + id, {
@@ -72,18 +77,29 @@ const useStyles = makeStyles((theme) => ({
 
 function TouristGroupsTable(props) {
   const [data, setData] = useState([]);
+  const [dialogDetails, setDialogDetails] = useState("");
   const classes = useStyles();
   const [isLoad, setIsLoad] = useState(false);
   const [touristGroups, settouristGroups] = useState([]);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
   const [isDarkMode] = useRecoilState(darkModeState);
   const [tour, setTour] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const updateCustomerList = (touristGroupId, customerList) => {
     settouristGroups(
       touristGroups.map((s) => {
         if (s.touristGroupId === touristGroupId)
           s.touristGroupDetailsOfCustomerList = customerList;
+        return s;
+      })
+    );
+  };
+  const updateStaffList = (touristGroupId, staffList) => {
+    settouristGroups(
+      touristGroups.map((s) => {
+        if (s.touristGroupId === touristGroupId)
+          s.touristGroupDetailsOfStaffList = staffList;
         return s;
       })
     );
@@ -113,7 +129,6 @@ function TouristGroupsTable(props) {
     );
     setIsLoad(true);
     settouristGroups(result.data);
-    console.log(result.data);
   }
 
   async function fetchTourData() {
@@ -136,7 +151,11 @@ function TouristGroupsTable(props) {
     text: t.tourName,
     value: t.tourId,
   }));
-
+  const onOpenDialog = (rowData) => {
+    setOpenDialog(true);
+    setDialogDetails(rowData.scheduleDetails);
+    console.log(rowData.scheduleDetails);
+  };
   return (
     <div>
       {!isLoad ? (
@@ -144,6 +163,12 @@ function TouristGroupsTable(props) {
       ) : (
         <React.Fragment> </React.Fragment>
       )}
+      <CustomDialog
+        title="Details"
+        details={dialogDetails}
+        openDialog={openDialog}
+        onCloseDialog={() => setOpenDialog(false)}
+      />
       <MaterialTable
         title="Tourist Group"
         icons={TableIcons}
@@ -169,7 +194,7 @@ function TouristGroupsTable(props) {
               console.log(newData.touristGroupId);
 
               settouristGroups([...touristGroups, newData]);
-              Add(newData).then(fetchData());
+              Add(newData).then(() => fetchData());
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
@@ -218,9 +243,7 @@ function TouristGroupsTable(props) {
             render: (rowData) => {
               return (
                 <div>
-                  <CostDetails
-                    costDetailsList={rowData.costDetailsList}
-                  ></CostDetails>
+                  <CostDetails costDetails={rowData.costDetailsList} />
                 </div>
               );
             },
@@ -232,10 +255,27 @@ function TouristGroupsTable(props) {
               return (
                 <CustomerDetails
                   //className={classes.detailTable}
+                  title="Customer List"
                   customerList={rowData.touristGroupDetailsOfCustomerList}
                   touristGroupId={rowData.touristGroupId}
                   fetchTouristGroup={fetchData}
                   onUpdate={updateCustomerList}
+                />
+              );
+            },
+          },
+          {
+            icon: AssignmentIndIcon,
+            tooltip: "Staff",
+            render: (rowData) => {
+              return (
+                <StaffDetails
+                  //className={classes.detailTable}
+                  title="Staff List"
+                  staffList={rowData.touristGroupDetailsOfStaffList}
+                  touristGroupId={rowData.touristGroupId}
+                  fetchTouristGroup={fetchData}
+                  onUpdate={updateStaffList}
                 />
               );
             },
@@ -290,6 +330,26 @@ function TouristGroupsTable(props) {
           {
             title: "Schedule Details",
             field: "scheduleDetails",
+            editComponent: (t) => (
+              <TextareaAutosize
+                aria-label="minimum height"
+                onChange={(e) => t.onChange(e.target.value)}
+                rowsMin={3}
+                value={t.value}
+              />
+            ),
+            render: (rowData) => (
+              <div>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="secondary"
+                  onClick={() => onOpenDialog(rowData)}
+                >
+                  Details
+                </Button>
+              </div>
+            ),
           },
         ]}
         localization={{

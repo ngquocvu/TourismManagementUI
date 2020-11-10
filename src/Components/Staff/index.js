@@ -10,6 +10,7 @@ import SnackBarC from "../SnackBarC";
 import MaterialTable from "material-table";
 import TableIcons from "../utilities/TableIcons";
 import JobDetails from "./JobDetails";
+import AssignmentIndIcon from "@material-ui/icons/AssignmentInd";
 import { useRecoilState } from "recoil";
 import { darkModeState } from "../../containers/state";
 
@@ -238,6 +239,7 @@ function StaffsTable(props) {
         detailPanel={[
           {
             tooltip: "Job details",
+            icon: AssignmentIndIcon,
             render: (rowData) => {
               return (
                 <JobDetails
