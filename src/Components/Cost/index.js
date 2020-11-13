@@ -146,24 +146,14 @@ function CostsTable(props) {
             editable: "never",
           },
           { title: "Name", field: "costName" },
-          {
-            title: "Price",
-            field: "price",
-            type: "currency",
-          },
+
           {
             title: "Description",
             field: "description",
           },
         ]}
       />
-      <Fab
-        aria-label="Add"
-        className={classes.fab}
-        color={props.isDarkMode ? "dark" : "secondary"}
-      >
-        <AddIcon />
-      </Fab>
+
       <SnackBarC
         open={isSnackBarOpen}
         handleSnackBarOnClose={handleSnackBarOnClose}

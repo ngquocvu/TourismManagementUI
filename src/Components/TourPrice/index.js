@@ -155,6 +155,12 @@ function TourPricesTable(props) {
             title: "Price",
             field: "price",
             type: "currency",
+            currencySetting: {
+              locale: "vn",
+              currencyCode: "vnd",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            },
           },
           {
             title: "Start date",

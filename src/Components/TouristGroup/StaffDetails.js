@@ -170,46 +170,48 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
   );
 
   const EditStaff = () => (
-    <React.Fragment>
-      {allStaffs.map((eachStaff) => (
-        <ul key={eachStaff.staffId}>
-          <FormControlLabel
-            key={eachStaff.staffId}
-            control={
-              <CheckBox
-                checked={
-                  !!chosenStaffs.find((j) => j.staffId === eachStaff.staffId)
-                }
-                name={eachStaff.staffId}
-                onClick={handleCheck}
-              />
-            }
-            label={eachStaff.fullName}
-          />
-        </ul>
-      ))}
-      <ul>
-        <Button
-          size="small"
-          variant="contained"
-          color="primary"
-          onClick={onSubmit}
-          color="secondary"
-        >
-          Update
-        </Button>
-        <Button
-          className={classes.btn}
-          size="small"
-          variant="contained"
-          color="primary"
-          color="secondary"
-          onClick={() => setIsOpen(false)}
-        >
-          Cancel
-        </Button>
-      </ul>
-    </React.Fragment>
+    <div>
+      <Grid container spacing={2}>
+        {allStaffs.map((eachStaff) => (
+          <Grid item xs={3} key={eachStaff.staffId}>
+            <FormControlLabel
+              key={eachStaff.staffId}
+              control={
+                <CheckBox
+                  checked={
+                    !!chosenStaffs.find((j) => j.staffId === eachStaff.staffId)
+                  }
+                  name={eachStaff.staffId}
+                  onClick={handleCheck}
+                />
+              }
+              label={eachStaff.fullName}
+            />
+          </Grid>
+        ))}
+        <Grid item xs={3}>
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            onClick={onSubmit}
+            color="secondary"
+          >
+            Update
+          </Button>
+          <Button
+            className={classes.btn}
+            size="small"
+            variant="outlined"
+            color="primary"
+            color="secondary"
+            onClick={() => setIsOpen(false)}
+          >
+            Cancel
+          </Button>
+        </Grid>
+      </Grid>
+    </div>
   );
 
   return (

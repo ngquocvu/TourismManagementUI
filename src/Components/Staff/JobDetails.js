@@ -119,7 +119,7 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
   };
 
   return (
-    <Paper variant="outlined" className={classes.main}>
+    <Paper variant="outlined" className={classes.flexList}>
       {isLoad ? (
         <LinearProgress color={isDarkMode ? "primary" : "secondary"} />
       ) : (
@@ -143,7 +143,7 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
       <ul>
         <Button
           vvariant="outlined"
-          size="small"
+          size="medium"
           color="secondary"
           onClick={onSubmit}
         >

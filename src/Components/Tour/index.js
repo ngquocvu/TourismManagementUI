@@ -1,86 +1,102 @@
 import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
 import React, { useState, useEffect, useCallback } from "react";
-import TableRow from "@material-ui/core/TableRow";
 import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
+import MaterialTable from "material-table";
+import TableIcons from "../utilities/TableIcons";
+import DestinationDetails from "./DestinationDetails";
+
+async function Delete(id) {
+  fetch("http://localhost:5000/api/tour/Deletetour/" + id, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+async function Add(tour) {
+  fetch("http://localhost:5000/api/tour/CreateTour/", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(tour),
+  });
+  console.log(JSON.stringify(tour));
+}
+
+async function Edit(id, tour) {
+  fetch("http://localhost:5000/api/tour/Updatetour/" + id, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(tour),
+  });
+}
+
+const useStyles = makeStyles((theme) => ({
+  table: {
+    minWidth: 630,
+  },
+  header: {
+    fontWeight: 900,
+  },
+  detailTable: {
+    padding: theme.spacing(4),
+    margin: theme.spacing(4),
+    background: "#d4d4d4",
+  },
+  fab: {
+    margin: 0,
+    top: "auto",
+    right: 20,
+    bottom: 20,
+    left: "auto",
+    position: "fixed",
+  },
+}));
+
 function ToursTable(props) {
   const [data, setData] = useState([]);
-  const [isLoad, setIsLoad] = useState(false);
-  const [Tours, setTours] = useState([]);
-  const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
-  const handleSnackBarOnClose = useCallback(() => {
-    setIsSnackBarOpen(false);
-  }, [false]);
-  const useStyles = makeStyles((theme) => ({
-    table: {
-      minWidth: 630,
-    },
-    title: {
-      flex: "1 1 100%",
-      textAlign: "left",
-      paddingLeft: theme.spacing(2),
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(1),
-      fontWeight: "bold",
-    },
-    header: {
-      fontWeight: 900,
-    },
-    fab: {
-      margin: 0,
-      top: "auto",
-      right: 20,
-      bottom: 20,
-      left: "auto",
-      position: "fixed",
-    },
-  }));
   const classes = useStyles();
+  const [isLoad, setIsLoad] = useState(false);
+  const [tours, setTours] = useState([]);
+  const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
+
+  const updateTourDetailsList = (tourId, tourDetailsList) => {
+    setTours(
+      tours.map((s) => {
+        if (s.tourId === tourId) s.tourDetailsList = tourDetailsList;
+        return s;
+      })
+    );
+  };
+
+  const handleSnackBarOnClose =
+    (() => {
+      setIsSnackBarOpen(false);
+    },
+    [false]);
+
   useEffect(() => {
-    async function fetchData() {
-      setIsLoad(false);
-      const result = await axios("http://localhost:5000/api/Tour/getallTour");
-      setTours(result.data);
-      console.log(data);
-      setIsLoad(true);
-    }
-    fetchData();
-  }, Tours);
-  async function Delete(id) {
-    fetch("http://localhost:5000/api/Tour/deleteTour/" + id, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+    fetchData().then(() => {
+      console.log(tours);
     });
-  }
-  async function Add() {
-    fetch("http://localhost:5000/api/Tour/CreateTour/", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        TourId: "",
-        fullName: "",
-        dateOfBirhth: "01/02/1999",
-      }),
-    });
+  }, []);
+
+  async function fetchData() {
+    setIsLoad(false);
+    const result = await axios("http://localhost:5000/api/tour/getalltour");
+    setIsLoad(true);
+    setTours(result.data);
   }
 
   return (
@@ -90,75 +106,107 @@ function ToursTable(props) {
       ) : (
         <React.Fragment> </React.Fragment>
       )}
-      <Paper>
-        <TableContainer component={Paper}>
-          <Typography
-            className={classes.title}
-            variant="h6"
-            id="tableTitle"
-            component="div"
-          >
-            Tour Table
-          </Typography>
-          <Table aria-label="sticky table" className={classes.table}>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell align="right">Name</TableCell>
-                <TableCell align="right">Description</TableCell>
-                <TableCell align="right">Type of tourism</TableCell>
-                <TableCell align="right">Price</TableCell>
-                <TableCell align="right"></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Tours.map((Tour) => (
-                <TableRow key={Tour.tourId}>
-                  <TableCell component="th" scope="row">
-                    {Tour.tourId}
-                  </TableCell>
-                  <TableCell align="right">{Tour.tourName}</TableCell>
-                  <TableCell align="right">{Tour.description}</TableCell>
-                  <TableCell align="right">{Tour.typesOfTourismId}</TableCell>
-                  <TableCell align="right">{Tour.tourPriceId}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      aria-label="edit"
-                      onClick={() => {
-                        Add();
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => {
-                        Delete(Tour.tourId);
-                        setTours(
-                          Tours.filter((item) => item.tourId !== Tour.tourId)
-                        );
-                        setIsSnackBarOpen(true);
-                        setTimeout(() => {
-                          setIsSnackBarOpen(false);
-                        }, 5000);
-                      }}
-                    >
-                      <DeleteIcon color="secondary" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <Fab
-        aria-label="Add"
-        className={classes.fab}
-        color={props.isDarkMode ? "dark" : "secondary"}
-      >
-        <AddIcon />
-      </Fab>
+      <MaterialTable
+        title="Tour"
+        icons={TableIcons}
+        data={tours.map((d) => ({ ...d }))}
+        options={{
+          actionsColumnIndex: -1,
+        }}
+        editable={{
+          onRowAdd: (newData) =>
+            new Promise((resolve, reject) => {
+              const last =
+                tours[Object.keys(tours)[Object.keys(tours).length - 1]];
+              newData.tourId = last.tourId + 1;
+              setTours([...tours, newData]);
+              Add(newData);
+              console.log(newData);
+              console.log(newData);
+              resolve();
+            }),
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                const dataUpdate = [...tours];
+                const index = oldData.tableData.id;
+                dataUpdate[index] = newData;
+                setTours([...dataUpdate]);
+                const sender = {
+                  description: newData.description,
+                  tourId: newData.tourId,
+                  tourName: newData.tourName,
+                  tourPriceId: newData.tourPriceId,
+                  typesOfTourismId: newData.typesOfTourismId,
+                };
+                Edit(newData.tourId, sender);
+                console.log(sender);
+                console.log(newData);
+                resolve();
+              }, 100);
+            }),
+          onRowDelete: (oldData) =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                const dataDelete = [...data];
+                const index = oldData.tableData.id;
+                Delete(oldData.tourId);
+                setTours(
+                  tours.filter((item) => item.tourId !== oldData.tourId)
+                );
+                dataDelete.splice(index, 1);
+                setData([...dataDelete]);
+                resolve();
+              }, 100);
+            }),
+        }}
+        columns={[
+          {
+            title: "Name",
+            field: "tourName",
+            validate: (rowData) =>
+              rowData.tourName < 1 ? "Tour Name must not be empty" : true,
+          },
+          {
+            title: "Description",
+            field: "description",
+            validate: (rowData) =>
+              rowData.description < 1 ? "Description must not be empty" : true,
+          },
+          {
+            title: "Type of tourism",
+            field: "typesOfTourismId",
+            type: "numeric",
+            validate: (rowData) =>
+              rowData.typeOfTourismId < 1
+                ? "City Name must not be empty"
+                : true,
+          },
+          {
+            title: "Price",
+            field: "tourPriceId",
+            type: "numeric",
+          },
+        ]}
+        detailPanel={[
+          {
+            tooltip: "Destination",
+            render: (rowData) => {
+              return (
+                <div>
+                  <DestinationDetails
+                    tourId={rowData.tourId}
+                    tourDetails={rowData.tourDetailsList}
+                    tourName={rowData.tourName}
+                    onUpdate={updateTourDetailsList}
+                    // setIsLoad={setIsLoad}
+                  />
+                </div>
+              );
+            },
+          },
+        ]}
+      />
       <SnackBarC
         open={isSnackBarOpen}
         handleSnackBarOnClose={handleSnackBarOnClose}

@@ -12,6 +12,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
+import Divider from "@material-ui/core/Divider";
 import ListItemText from "@material-ui/core/ListItemText";
 import Avatar from "@material-ui/core/Avatar";
 import EditIcon from "@material-ui/icons/Edit";
@@ -172,48 +173,50 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
   );
 
   const EditCustomer = () => (
-    <React.Fragment>
-      {allCustomers.map((eachCustomer) => (
-        <ul key={eachCustomer.customerId}>
-          <FormControlLabel
-            key={eachCustomer.customerId}
-            control={
-              <CheckBox
-                checked={
-                  !!chosenCustomers.find(
-                    (j) => j.customerId === eachCustomer.customerId
-                  )
-                }
-                name={eachCustomer.customerId}
-                onClick={handleCheck}
-              />
-            }
-            label={eachCustomer.fullName}
-          />
-        </ul>
-      ))}
-      <ul>
-        <Button
-          size="small"
-          variant="contained"
-          color="primary"
-          onClick={onSubmit}
-          color="secondary"
-        >
-          Update
-        </Button>
-        <Button
-          className={classes.btn}
-          size="small"
-          variant="contained"
-          color="primary"
-          color="secondary"
-          onClick={() => setIsOpen(false)}
-        >
-          Cancel
-        </Button>
-      </ul>
-    </React.Fragment>
+    <div>
+      <Grid container spacing={2}>
+        {allCustomers.map((eachCustomer) => (
+          <Grid item xs={3} key={eachCustomer.customerId}>
+            <FormControlLabel
+              key={eachCustomer.customerId}
+              control={
+                <CheckBox
+                  checked={
+                    !!chosenCustomers.find(
+                      (j) => j.customerId === eachCustomer.customerId
+                    )
+                  }
+                  name={eachCustomer.customerId}
+                  onClick={handleCheck}
+                />
+              }
+              label={eachCustomer.fullName}
+            />
+          </Grid>
+        ))}
+        <Grid item xs={3}>
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            onClick={onSubmit}
+            color="secondary"
+          >
+            Update
+          </Button>
+          <Button
+            className={classes.btn}
+            size="small"
+            variant="outlined"
+            color="primary"
+            color="secondary"
+            onClick={() => setIsOpen(false)}
+          >
+            Cancel
+          </Button>
+        </Grid>
+      </Grid>
+    </div>
   );
 
   return (

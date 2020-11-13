@@ -95,6 +95,18 @@ function TouristGroupsTable(props) {
       })
     );
   };
+  const updateCostDetailsList = (touristGroupId, costDetailsList) => {
+    settouristGroups(
+      touristGroups.map((s) => {
+        if (s.touristGroupId === touristGroupId)
+          s.costDetailsList = costDetailsList;
+        console.log("if ne: ");
+        console.log(s.touristGroupId === touristGroupId);
+        console.log(s.costDetailsList);
+        return s;
+      })
+    );
+  };
   const updateStaffList = (touristGroupId, staffList) => {
     settouristGroups(
       touristGroups.map((s) => {
@@ -222,16 +234,12 @@ function TouristGroupsTable(props) {
           onRowDelete: (oldData) =>
             new Promise((resolve, reject) => {
               setTimeout(() => {
-                const dataDelete = [...data];
-                const index = oldData.tableData.id;
                 Delete(oldData.touristGroupId);
                 settouristGroups(
                   touristGroups.filter(
                     (item) => item.touristGroupId !== oldData.touristGroupId
                   )
                 );
-                dataDelete.splice(index, 1);
-                setData([...dataDelete]);
                 resolve();
               }, 1000);
             }),
@@ -243,7 +251,13 @@ function TouristGroupsTable(props) {
             render: (rowData) => {
               return (
                 <div>
-                  <CostDetails costDetails={rowData.costDetailsList} />
+                  <CostDetails
+                    groupId={rowData.touristGroupId}
+                    costDetails={rowData.costDetailsList}
+                    groupName={rowData.groupName}
+                    onUpdate={updateCostDetailsList}
+                    setIsLoad={setIsLoad}
+                  />
                 </div>
               );
             },
