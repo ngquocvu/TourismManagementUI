@@ -7,15 +7,22 @@ import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import Badge from "@material-ui/core/Badge";
+import BeachAccessIcon from "@material-ui/icons/BeachAccess";
+import SupervisedUserCircleIcon from "@material-ui/icons/SupervisedUserCircle";
+import CategoryIcon from "@material-ui/icons/Category";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
+import ListSubheader from "@material-ui/core/ListSubheader";
 import Switch from "@material-ui/core/Switch";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
 import Drawer from "@material-ui/core/Drawer";
 import Divider from "@material-ui/core/Divider";
+import BrightnessHighIcon from "@material-ui/icons/BrightnessHigh";
 import List from "@material-ui/core/List";
+import NotificationsIcon from "@material-ui/icons/Notifications";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
+import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import ListItemText from "@material-ui/core/ListItemText";
 import PersonIcon from "@material-ui/icons/Person";
 import ChevronLeft from "@material-ui/icons/ChevronLeft";
@@ -65,6 +72,7 @@ function NavBar() {
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [title, setTitle] = useState("Voucher Management");
 
   const handleListItemClick = (index) => {
     setSelectedIndex(index);
@@ -100,7 +108,15 @@ function NavBar() {
               isSelected={selectedIndex === 0}
               onClick={() => handleListItemClick(0)}
             />
-
+            <CustomListItem
+              icon={<CategoryIcon />}
+              text="Analytics"
+              link="/analyst"
+              isSelected={selectedIndex === 10}
+              onClick={() => handleListItemClick(10)}
+            />
+            <Divider />
+            <ListSubheader>Tour Settings</ListSubheader>
             <CustomListItem
               icon={<MapIcon />}
               text="Tour"
@@ -109,7 +125,38 @@ function NavBar() {
               onClick={() => handleListItemClick(1)}
             />
             <CustomListItem
-              icon={<PersonIcon />}
+              icon={<LocationOnIcon />}
+              text="Location"
+              link="/location"
+              isSelected={selectedIndex === 5}
+              onClick={() => handleListItemClick(5)}
+            />
+            <CustomListItem
+              icon={<MonetizationOnIcon />}
+              text="Cost"
+              link="/cost"
+              isSelected={selectedIndex === 4}
+              onClick={() => handleListItemClick(4)}
+            />
+            <CustomListItem
+              icon={<BeachAccessIcon />}
+              text="Tourist Type"
+              link="/type"
+              isSelected={selectedIndex === 9}
+              onClick={() => handleListItemClick(9)}
+            />
+
+            <CustomListItem
+              icon={<AttachMoneyIcon />}
+              text="Tour's Price"
+              link="/tour-price"
+              isSelected={selectedIndex === 7}
+              onClick={() => handleListItemClick(7)}
+            />
+            <Divider />
+            <ListSubheader>People</ListSubheader>
+            <CustomListItem
+              icon={<SupervisedUserCircleIcon />}
               text="Tourist Group"
               link="/tourist-group"
               isSelected={selectedIndex === 2}
@@ -122,19 +169,13 @@ function NavBar() {
               isSelected={selectedIndex === 3}
               onClick={() => handleListItemClick(3)}
             />
+
             <CustomListItem
-              icon={<MonetizationOnIcon />}
-              text="Cost"
-              link="/cost"
-              isSelected={selectedIndex === 4}
-              onClick={() => handleListItemClick(4)}
-            />
-            <CustomListItem
-              icon={<LocationOnIcon />}
-              text="Location"
-              link="/location"
-              isSelected={selectedIndex === 5}
-              onClick={() => handleListItemClick(5)}
+              icon={<PersonIcon />}
+              text="Staff"
+              link="/staff"
+              isSelected={selectedIndex === 8}
+              onClick={() => handleListItemClick(8)}
             />
             <CustomListItem
               icon={<WorkOutlineIcon />}
@@ -142,21 +183,6 @@ function NavBar() {
               link="/job"
               isSelected={selectedIndex === 6}
               onClick={() => handleListItemClick(6)}
-            />
-
-            <CustomListItem
-              icon={<CreditCardIcon />}
-              text="Tour Price"
-              link="/tour-price"
-              isSelected={selectedIndex === 7}
-              onClick={() => handleListItemClick(7)}
-            />
-            <CustomListItem
-              icon={<PersonIcon />}
-              text="Staff"
-              link="/staff"
-              isSelected={selectedIndex === 8}
-              onClick={() => handleListItemClick(8)}
             />
           </List>
         </div>
@@ -177,13 +203,20 @@ function NavBar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" className={classes.title}></Typography>
-          <Switch
-            checked={isDarkMode}
-            onChange={() => setIsDarkMode(!isDarkMode)}
-            icon={<Brightness4Icon />}
-            checkedIcon={<Brightness4Icon />}
-          />
+          <Typography variant="h6" className={classes.title}>
+            {title}
+          </Typography>
+          <IconButton aria-label="show 1 new notifications" color="inherit">
+            <Badge badgeContent={1} color="secondary">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={() => setIsDarkMode(!isDarkMode)}
+          >
+            {isDarkMode ? <Brightness4Icon /> : <BrightnessHighIcon />}
+          </IconButton>
         </Toolbar>
       </AppBar>
     </div>

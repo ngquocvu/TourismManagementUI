@@ -87,7 +87,7 @@ function CostDetails({ costDetails, groupId, groupName, onUpdate }) {
   const fetchCostType = async () => {
     const result = await axios("http://localhost:5000/api/cost/getallcost");
     setCostType(result.data);
-    console.log(result.data);
+    //console.log(result.data);
   };
 
   return (

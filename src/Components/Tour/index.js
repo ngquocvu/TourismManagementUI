@@ -1,13 +1,13 @@
-import { createMuiTheme, makeStyles } from "@material-ui/core/styles";
-import Fab from "@material-ui/core/Fab";
-import AddIcon from "@material-ui/icons/Add";
-import React, { useState, useEffect, useCallback } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
 import MaterialTable from "material-table";
 import TableIcons from "../utilities/TableIcons";
 import DestinationDetails from "./DestinationDetails";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 
 async function Delete(id) {
   fetch("http://localhost:5000/api/tour/Deletetour/" + id, {
@@ -70,6 +70,7 @@ function ToursTable(props) {
   const [isLoad, setIsLoad] = useState(false);
   const [tours, setTours] = useState([]);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
+  const [typeOfTourism, setTypeOfTourism] = useState([]);
 
   const updateTourDetailsList = (tourId, tourDetailsList) => {
     setTours(
@@ -88,15 +89,20 @@ function ToursTable(props) {
 
   useEffect(() => {
     fetchData().then(() => {
-      console.log(tours);
+      console.log("Type ne");
     });
   }, []);
 
   async function fetchData() {
     setIsLoad(false);
     const result = await axios("http://localhost:5000/api/tour/getalltour");
+    const tourResult = await axios(
+      "http://localhost:5000/api/TypesOfTourism/getall"
+    );
     setIsLoad(true);
     setTours(result.data);
+    setTypeOfTourism(tourResult.data);
+    console.log(tourResult.data);
   }
 
   return (
@@ -177,15 +183,29 @@ function ToursTable(props) {
             title: "Type of tourism",
             field: "typesOfTourismId",
             type: "numeric",
-            validate: (rowData) =>
-              rowData.typeOfTourismId < 1
-                ? "City Name must not be empty"
-                : true,
-          },
-          {
-            title: "Price",
-            field: "tourPriceId",
-            type: "numeric",
+            editComponent: (t) => (
+              <Select
+                value={t.value}
+                onChange={(e) => {
+                  t.onChange(e.target.value);
+                  console.group(e.target.value);
+                }}
+              >
+                {typeOfTourism.map((each) => (
+                  <MenuItem value={each.typesOfTourismId}>
+                    {each.typeName}
+                  </MenuItem>
+                ))}
+              </Select>
+            ),
+            render: (rowData) => {
+              let typeName;
+              typeOfTourism.map((t) => {
+                if (rowData.typeOfTourismId === t.typeOfTourismId)
+                  typeName = t.typeName;
+              });
+              return typeName;
+            },
           },
         ]}
         detailPanel={[

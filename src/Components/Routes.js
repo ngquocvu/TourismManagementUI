@@ -4,6 +4,7 @@ import { useRecoilState } from "recoil";
 import { darkModeState } from "../containers/state";
 
 const Dashboard = lazy(() => import("./Dashboard"));
+const TypeOfTourism = lazy(() => import("./TypeOfTourism"));
 const StaffsTable = lazy(() => import("./Staff"));
 const CustomersTable = lazy(() => import("./Customer"));
 const CostsTable = lazy(() => import("./Cost"));
@@ -12,6 +13,7 @@ const ToursTable = lazy(() => import("./Tour"));
 const JobsTable = lazy(() => import("./Job"));
 const TouristGroup = lazy(() => import("./TouristGroup"));
 const TourPricesTable = lazy(() => import("./TourPrice"));
+const Analyst = lazy(() => import("./Analyst"));
 function Routes() {
   const [isDarkMode] = useRecoilState(darkModeState);
   return (
@@ -20,13 +22,13 @@ function Routes() {
         <Redirect to="/dashboard" />
       </Route>
       <Route exact path="/dashboard">
-        <Dashboard isDarkMode={isDarkMode} />
+        <Dashboard isDarkMode={isDarkMode} title="Dashboard" />
       </Route>
       <Route exact path="/customer">
-        <CustomersTable isDarkMode={isDarkMode} />
+        <CustomersTable isDarkMode={isDarkMode} title="Customer" />
       </Route>
       <Route exact path="/staff">
-        <StaffsTable isDarkMode={isDarkMode} />
+        <StaffsTable isDarkMode={isDarkMode} title="Staff" />
       </Route>
       <Route exact path="/location">
         <LocationsTable isDarkMode={isDarkMode} />
@@ -45,6 +47,12 @@ function Routes() {
       </Route>
       <Route exact path="/tourist-group">
         <TouristGroup isDarkMode={isDarkMode} />
+      </Route>
+      <Route exact path="/type">
+        <TypeOfTourism isDarkMode={isDarkMode} />
+      </Route>
+      <Route exact path="/analyst">
+        <Analyst isDarkMode={isDarkMode} />
       </Route>
     </Switch>
   );

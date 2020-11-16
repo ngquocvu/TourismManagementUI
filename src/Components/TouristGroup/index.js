@@ -40,7 +40,7 @@ async function Add(touristGroup) {
     },
     body: JSON.stringify(touristGroup),
   });
-  console.log(JSON.stringify(touristGroup));
+  //console.log(JSON.stringify(touristGroup));
 }
 
 async function Edit(id, touristGroup) {
@@ -235,6 +235,7 @@ function TouristGroupsTable(props) {
             new Promise((resolve, reject) => {
               setTimeout(() => {
                 Delete(oldData.touristGroupId);
+
                 settouristGroups(
                   touristGroups.filter(
                     (item) => item.touristGroupId !== oldData.touristGroupId

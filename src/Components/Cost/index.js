@@ -87,6 +87,7 @@ function CostsTable(props) {
     const result = await axios("http://localhost:5000/api/cost/getallcost");
     setIsLoad(true);
     setcosts(result.data);
+    console.log(result);
   }
 
   return (

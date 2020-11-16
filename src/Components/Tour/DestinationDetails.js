@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import Button from "@material-ui/core/Button";
-import TableIcons from "../utilities/TableIcons";
 import Paper from "@material-ui/core/Paper";
-import TextareaAutosize from "@material-ui/core/TextareaAutosize";
-import MaterialTable from "material-table";
 import MenuItem from "@material-ui/core/MenuItem";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Select from "@material-ui/core/Select";
+import Button from "@material-ui/core/Button";
+import MaterialTable from "material-table";
+import TableIcons from "../utilities/TableIcons";
+import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
@@ -32,26 +32,25 @@ const useStyles = makeStyles((theme) => ({
 function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
   const classes = useStyles();
   const [destinations, setDestinations] = useState(tourDetails);
-  const [destinationType, setDestinationType] = useState([]);
+  const [places, setPlaces] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [selectedDestination, setSelectedDestination] = useState([]);
-  const [selectedCity, setSelectedCity] = useState();
+  const [cities, setCities] = useState([]);
+  const [selCity, setSelCity] = useState();
+  const [selPlace, setSelPlace] = useState();
+  const [inOrder, setInOrder] = useState();
 
   async function Delete(id) {
-    fetch(
-      "http://localhost:5000/api/touristgroup/DeleteDestinationDetails/" + id,
-      {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    fetch("http://localhost:5000/api/tour/DeleteTourDetails/" + id, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
   }
 
   async function Add(location) {
-    fetch("http://localhost:5000/api/touristgroup/CreateDestinationDetails/", {
+    fetch("http://localhost:5000/api/tour/CreateTourDetails/", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -62,177 +61,139 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
     console.log(JSON.stringify(location));
   }
 
-  async function Edit(id, destination) {
-    fetch(
-      "http://localhost:5000/api/touristgroup/UpdateDestinationDetails/" + id,
-      {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(destination),
-      }
-    );
-  }
-
   async function fetchLocation() {
-    //setIsLoad(false);
     const result = await axios(
       "http://localhost:5000/api/location/getalllocation"
     );
-    //setIsLoad(true);
+    setLocations(result.data);
     const unique = [...new Set(result.data.map((item) => item.city))];
-    setLocations(unique);
-    console.log(unique);
+    setCities(unique);
   }
 
-  async function getSelectedDestination(city) {
-    console.log("definde: " + city);
-    const result = await axios(
-      "http://localhost:5000/api/location/getalllocation?city=" +
-        city.toLowerCase()
+  function getSelectedDestination(sellectedCity) {
+    setPlaces(
+      locations
+        .filter(({ city }) => sellectedCity === city)
+        .map(({ locationId, locationName }) => ({
+          locationId,
+          locationName,
+        }))
     );
-    //setIsLoad(true);
-    setSelectedDestination(result.data);
-    setSelectedCity(city);
+  }
+  function onSubmitLocation() {
+    const sender = {
+      locationId: selPlace,
+      tourId: tourId,
+      inOrder: parseInt(inOrder),
+    };
+    var last =
+      tourDetails[
+        Object.keys(tourDetails)[Object.keys(tourDetails).length - 1]
+      ];
+    if (last === undefined) {
+      sender.id = 1;
+    } else {
+      sender.id = last.id + 1;
+    }
+
+    Add(sender).then(() => fetchLocation());
   }
 
   useEffect(() => {
     fetchLocation();
+    console.log(tourDetails);
   }, []);
-  const handleBtnClick = () => {
-    //mở form thêm destination vào !!
-  };
 
   return (
     <Paper variant="outlined" className={classes.main}>
-      {tourDetails.map((c) => {
-        console.log(c.destination);
-      })}
       <MaterialTable
-        components={{
-          Container: (props) => <Paper {...props} elevation={0} />,
-        }}
-        title={"Destinations of " + tourName}
+        title={"Destination of " + tourName}
         icons={TableIcons}
-        //data=destinations.map((d) => ({ ...d }))
-        data={destinations}
+        //data=staffs.map((d) => ({ ...d }))
+        data={tourDetails}
         options={{
           actionsColumnIndex: -1,
         }}
-        editable={{
-          onRowAdd: (newData) =>
-            new Promise((resolve, reject) => {
-              var last =
-                destinations[
-                  Object.keys(destinations)[
-                    Object.keys(destinations).length - 1
-                  ]
-                ];
-              if (last === undefined) {
-                newData.id = 1;
-              } else {
-                newData.id = last.id + 1;
-              }
-              newData.touristGroupId = tourId;
-              console.log(newData);
-              setDestinations([...destinations, newData]);
-              Add(newData);
-
-              resolve();
-            }),
-          onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
-              setTimeout(() => {
-                const dataUpdate = [...destinations];
-                const index = oldData.tableData.id;
-                dataUpdate[index] = newData;
-                setDestinations([...dataUpdate]);
-                console.log(newData);
-                const sender = {
-                  destinationDetailsName: newData.destinationDetailsName,
-                  destinationId: newData.destinationId,
-                  id: newData.id,
-                  price: newData.price,
-                  touristGroupId: newData.touristGroupId,
-                };
-                Edit(oldData.id, sender).then(() => {
-                  onUpdate(newData.touristGroupId, dataUpdate);
-                });
-                resolve();
-              }, 100);
-            }),
-          onRowDelete: (oldData) =>
-            new Promise((resolve, reject) => {
-              setTimeout(() => {
-                Delete(oldData.id);
-                setDestinations(
-                  destinations.filter((item) => item.id !== oldData.id)
-                );
-                resolve();
-              }, 1000);
-            }),
-        }}
         columns={[
           {
-            title: "City",
-            field: "city",
-            type: "string",
-            render: (rowData) =>
-              destinationType.map((each) => {
-                if (each.destinationId === rowData.destinationId)
-                  return each.destinationName;
-              }),
-            editComponent: (t) => (
-              <Select
-                value={selectedCity}
-                onChange={(e) => {
-                  getSelectedDestination(e.target.value);
-                }}
-              >
-                {locations.map((each, index) => (
-                  <MenuItem value={each}>{(console.log(each), each)}</MenuItem>
-                ))}
-              </Select>
-            ),
+            title: "Priority",
+            field: "locationId",
           },
           {
             title: "Place",
             field: "locationId",
-            type: "string",
-            render: (rowData) =>
-              destinationType.map((each) => {
-                if (each.destinationId === rowData.destinationId)
-                  return each.destinationName;
-              }),
-            editComponent: (t) => (
-              <Select
-                value={t.value}
-                onChange={(e) => {
-                  t.onChange(e.target.value);
-                  console.group(e.target.value);
-                }}
-              >
-                {selectedDestination.map((each) => (
-                  <MenuItem value={each.locationId}>
-                    {each.locationName}
-                  </MenuItem>
-                ))}
-              </Select>
-            ),
+            render: (rowData) => {
+              var result = "";
+              locations.map((l) => {
+                if (l.locationId === rowData.locationId)
+                  result = l.locationName;
+              });
+              return result;
+            },
           },
         ]}
-        localization={{
-          header: {
-            actions: "",
-          },
+        editable={{
+          onRowDelete: (oldData) =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                resolve();
+              }, 100);
+            }),
         }}
-      />
-      <Grid container spacing={1} variant="h5" className={classes.grid}>
-        <Grid item xs={2}></Grid>
-        <Grid item xs={2} sm={6}>
+      ></MaterialTable>
+      <Grid container spacing={3} variant="h5" className={classes.grid}>
+        <Grid item xs={12} sm={12}>
+          <Typography variant="h6" component="h2">
+            Add A Place
+          </Typography>
+        </Grid>
+        <Grid item xs={2} sm={2}>
+          <Typography component="h5">Select City</Typography>
+          <Select
+            value={selCity ? selCity : 1}
+            onChange={(e) => {
+              getSelectedDestination(e.target.value);
+              setSelCity(e.target.value);
+            }}
+          >
+            {cities.map((each, index) => (
+              <MenuItem value={each}>{(console.log(each), each)}</MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid item xs={2} sm={2}>
+          <Typography component="h5">Select Place</Typography>
           <Typography variant="h6" component="h2"></Typography>
+          <Select
+            value={selPlace ? selPlace : 1}
+            onChange={(e) => {
+              setSelPlace(e.target.value);
+            }}
+          >
+            {places.map((each) => (
+              <MenuItem value={each.locationId}>{each.locationName}</MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid item xs={2} sm={2}>
+          <TextField
+            id="standard-basic"
+            type="number"
+            label="Prority"
+            onChange={(e) => setInOrder(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={2} sm={12}>
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            //onClick={onSubmit}
+            color="inherit"
+            onClick={() => onSubmitLocation()}
+          >
+            Update
+          </Button>
         </Grid>
       </Grid>
     </Paper>
