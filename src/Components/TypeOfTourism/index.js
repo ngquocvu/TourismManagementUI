@@ -6,36 +6,16 @@ import MenuItem from "@material-ui/core/MenuItem";
 import axios from "axios";
 
 async function Delete(id) {
-  fetch("http://localhost:5000/api/TypesOfTourism/DeleteTypesOfTourism/" + id, {
-    method: "DELETE",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-  });
-}
-
-async function Add(location) {
-  fetch("http://localhost:5000/api/TypesOfTourism/CreateTypesOfTourism/", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(location),
-  });
-  console.log(JSON.stringify(location));
-}
-
-async function Edit(id, destination) {
-  fetch("http://localhost:5000/api/TypesOfTourism/UpdateTypesOfTourism/" + id, {
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(destination),
-  });
+  await fetch(
+    "http://localhost:5000/api/TypesOfTourism/DeleteTypesOfTourism/" + id,
+    {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  );
 }
 
 function TypeOfTourism() {
@@ -57,10 +37,40 @@ function TypeOfTourism() {
     setTypes(result.data);
   }
 
+  async function Add(location) {
+    await fetch(
+      "http://localhost:5000/api/TypesOfTourism/CreateTypesOfTourism/",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(location),
+      }
+    );
+    fetchData();
+  }
+  async function Edit(id, destination) {
+    await fetch(
+      "http://localhost:5000/api/TypesOfTourism/UpdateTypesOfTourism/" + id,
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(destination),
+      }
+    );
+    fetchData();
+  }
+
   return (
     <div>
       <MaterialTable
-        data={types}
+        title="Type"
+        data={types.map((d) => ({ ...d }))}
         columns={[
           {
             field: "typeName",
@@ -75,28 +85,27 @@ function TypeOfTourism() {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              var last =
-                types[Object.keys(types)[Object.keys(types).length - 1]];
-              if (last === undefined) {
-                newData.typesOfTourismId = 1;
-              } else {
-                newData.typesOfTourismId = last.typesOfTourismId + 1;
-              }
+              setTimeout(() => {
+                console.log(types);
+                setTypes([...types], newData);
+                Add(newData).then(() =>
+                  setTimeout(function () {
+                    fetchData();
+                    setIsLoad(false);
+                  }, 1000)
+                );
 
-              setTypes([...types, newData]);
-              Add(newData);
-              resolve();
+                resolve();
+              }, 0);
             }),
           onRowUpdate: (newData, oldData) =>
             new Promise((resolve, reject) => {
               setTimeout(() => {
-                const dataUpdate = [...types];
-                const index = oldData.tableData.id;
-                dataUpdate[index] = newData;
-                const Sender = {};
-                setTypes([...dataUpdate]);
-                console.log("new Data");
-                console.log(newData);
+                //const dataUpdate = [...types];
+                // const index = oldData.tableData.id;
+                // dataUpdate[index] = newData;
+                //setTypes([...dataUpdate]);
+                //console.log(newData);
                 Edit(oldData.typesOfTourismId, newData);
                 resolve();
               }, 100);

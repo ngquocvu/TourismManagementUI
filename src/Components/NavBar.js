@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { darkModeState } from "../containers/state";
 import { makeStyles } from "@material-ui/core";
@@ -24,7 +24,9 @@ import NotificationsIcon from "@material-ui/icons/Notifications";
 import ListItem from "@material-ui/core/ListItem";
 import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
 import ListItemText from "@material-ui/core/ListItemText";
+import AssessmentIcon from "@material-ui/icons/Assessment";
 import PersonIcon from "@material-ui/icons/Person";
+import WorkIcon from "@material-ui/icons/Work";
 import ChevronLeft from "@material-ui/icons/ChevronLeft";
 import HomeIcon from "@material-ui/icons/Home";
 import CreditCardIcon from "@material-ui/icons/CreditCard";
@@ -72,7 +74,8 @@ function NavBar() {
   const classes = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [title, setTitle] = useState("Voucher Management");
+  const [title, setTitle] = useState("Tour Management");
+  const history = useHistory();
 
   const handleListItemClick = (index) => {
     setSelectedIndex(index);
@@ -109,7 +112,7 @@ function NavBar() {
               onClick={() => handleListItemClick(0)}
             />
             <CustomListItem
-              icon={<CategoryIcon />}
+              icon={<AssessmentIcon />}
               text="Analytics"
               link="/analyst"
               isSelected={selectedIndex === 10}
@@ -140,7 +143,7 @@ function NavBar() {
             />
             <CustomListItem
               icon={<BeachAccessIcon />}
-              text="Tourist Type"
+              text="Type"
               link="/type"
               isSelected={selectedIndex === 9}
               onClick={() => handleListItemClick(9)}
@@ -148,7 +151,7 @@ function NavBar() {
 
             <CustomListItem
               icon={<AttachMoneyIcon />}
-              text="Tour's Price"
+              text="Price"
               link="/tour-price"
               isSelected={selectedIndex === 7}
               onClick={() => handleListItemClick(7)}
@@ -157,7 +160,7 @@ function NavBar() {
             <ListSubheader>People</ListSubheader>
             <CustomListItem
               icon={<SupervisedUserCircleIcon />}
-              text="Tourist Group"
+              text="Group"
               link="/tourist-group"
               isSelected={selectedIndex === 2}
               onClick={() => handleListItemClick(2)}
@@ -178,7 +181,7 @@ function NavBar() {
               onClick={() => handleListItemClick(8)}
             />
             <CustomListItem
-              icon={<WorkOutlineIcon />}
+              icon={<WorkIcon />}
               text="Job"
               link="/job"
               isSelected={selectedIndex === 6}
@@ -203,14 +206,18 @@ function NavBar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" className={classes.title}>
+          <Typography
+            variant="h6"
+            onClick={() => history.push("/")}
+            className={classes.title}
+          >
             {title}
           </Typography>
-          <IconButton aria-label="show 1 new notifications" color="inherit">
+          {/* <IconButton aria-label="show 1 new notifications" color="inherit">
             <Badge badgeContent={1} color="secondary">
               <NotificationsIcon />
             </Badge>
-          </IconButton>
+          </IconButton> */}
           <IconButton
             color="inherit"
             onClick={() => setIsDarkMode(!isDarkMode)}

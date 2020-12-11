@@ -91,6 +91,19 @@ function LocationsTable(props) {
     setlocations(result.data);
   }
 
+  async function Add(location) {
+    fetch("http://localhost:5000/api/location/CreateLocation/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(location),
+    });
+    fetchData();
+    console.log(JSON.stringify(location));
+  }
+
   return (
     <div>
       {!isLoad ? (
@@ -108,13 +121,15 @@ function LocationsTable(props) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              const last =
-                locations[
-                  Object.keys(locations)[Object.keys(locations).length - 1]
-                ];
-              newData.locationId = last.locationId + 1;
-              setlocations([...locations, newData]);
-              Add(newData);
+              setIsLoad(true);
+              //setlocations([...locations, newData]);
+              Add(newData).then(() =>
+                setTimeout(function () {
+                  fetchData();
+                  setIsLoad(false);
+                }, 1000)
+              );
+
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>

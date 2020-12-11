@@ -31,18 +31,6 @@ async function Delete(id) {
   });
 }
 
-async function Add(touristGroup) {
-  fetch("http://localhost:5000/api/touristGroup/CreatetouristGroup/", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(touristGroup),
-  });
-  //console.log(JSON.stringify(touristGroup));
-}
-
 async function Edit(id, touristGroup) {
   fetch("http://localhost:5000/api/touristGroup/UpdateTouristGroup/" + id, {
     method: "PUT",
@@ -100,9 +88,6 @@ function TouristGroupsTable(props) {
       touristGroups.map((s) => {
         if (s.touristGroupId === touristGroupId)
           s.costDetailsList = costDetailsList;
-        console.log("if ne: ");
-        console.log(s.touristGroupId === touristGroupId);
-        console.log(s.costDetailsList);
         return s;
       })
     );
@@ -117,6 +102,18 @@ function TouristGroupsTable(props) {
     );
   };
 
+  async function Add(touristGroup) {
+    await fetch("http://localhost:5000/api/touristGroup/CreatetouristGroup/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(touristGroup),
+    });
+    fetchData();
+  }
+
   const handleSnackBarOnClose =
     (() => {
       setIsSnackBarOpen(false);
@@ -124,15 +121,11 @@ function TouristGroupsTable(props) {
     [false]);
 
   useEffect(() => {
-    fetchData().then(() => {
-      console.log(touristGroups);
-    });
+    fetchData().then(() => {});
     fetchTourData();
   }, []);
 
-  useEffect(() => {
-    console.log(touristGroups);
-  }, [touristGroups]);
+  useEffect(() => {}, [touristGroups]);
 
   async function fetchData() {
     setIsLoad(false);
@@ -147,12 +140,44 @@ function TouristGroupsTable(props) {
     const result = await axios("http://localhost:5000/api/tour/getalltour");
     return setTour(result.data);
   }
+  const checkStartDate = (tourData) => {
+    const date = tourData.startDate;
+    var isValidate = false;
+    var tourPriceList = [];
+    if (tourData.tour !== undefined) {
+      tourPriceList = tourData.tour.tourPriceList;
+    } else {
+      if (tourData.tourId !== undefined) {
+        tour.forEach((t) => {
+          if (t.tourId === tourData.tourId) {
+            tourPriceList = t.tourPriceList;
+            console.log(tourPriceList);
+          }
+        });
+      } else {
+        return false;
+      }
+    }
+
+    let formatedDate = new Date(date);
+    formatedDate.setHours(1, 1, 1, 1);
+    tourPriceList.forEach((c) => {
+      let startDate = new Date(c.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      let endDate = new Date(c.endDate);
+      endDate.setHours(23, 23, 23, 23);
+      if (formatedDate <= endDate && formatedDate >= startDate) {
+        isValidate = true;
+      }
+    });
+
+    return isValidate;
+  };
 
   function getTourName(tourId) {
     let name;
     tour.forEach((ele) => {
       if (ele.tourId === tourId) {
-        console.log(ele.tourName);
         name = ele.tourName;
       }
     });
@@ -166,7 +191,6 @@ function TouristGroupsTable(props) {
   const onOpenDialog = (rowData) => {
     setOpenDialog(true);
     setDialogDetails(rowData.scheduleDetails);
-    console.log(rowData.scheduleDetails);
   };
   return (
     <div>
@@ -192,22 +216,10 @@ function TouristGroupsTable(props) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              var last =
-                touristGroups[
-                  Object.keys(touristGroups)[
-                    Object.keys(touristGroups).length - 1
-                  ]
-                ];
-              if (last === undefined) {
-                newData.touristGroupId = 1;
-              } else {
-                newData.touristGroupId = last.touristGroupId + 1;
-              }
-              console.log(newData.touristGroupId);
-
-              settouristGroups([...touristGroups, newData]);
-              Add(newData).then(() => fetchData());
-              resolve();
+              setTimeout(() => {
+                Add(newData);
+                resolve();
+              }, 100);
             }),
           onRowUpdate: (newData, oldData) =>
             new Promise((resolve, reject) => {
@@ -225,8 +237,7 @@ function TouristGroupsTable(props) {
                   tourId: newData.tourId,
                 };
                 settouristGroups([...dataUpdate]);
-                console.log("new Data");
-                console.log(newData);
+
                 Edit(oldData.touristGroupId, Sender);
                 resolve();
               }, 100);
@@ -254,7 +265,6 @@ function TouristGroupsTable(props) {
                 <div>
                   <CostDetails
                     groupId={rowData.touristGroupId}
-                    costDetails={rowData.costDetailsList}
                     groupName={rowData.groupName}
                     onUpdate={updateCostDetailsList}
                     setIsLoad={setIsLoad}
@@ -309,10 +319,10 @@ function TouristGroupsTable(props) {
             type: "numeric",
             editComponent: (t) => (
               <Select
-                value={t.value}
+                value={t.value ? t.value : 0}
                 onChange={(e) => {
                   t.onChange(e.target.value);
-                  console.group(e.target.value);
+                  console.log(e.target.value);
                 }}
               >
                 {tour.map((each) => (
@@ -329,6 +339,10 @@ function TouristGroupsTable(props) {
             field: "startDate",
             type: "date",
             initialEditValue: new Date().toISOString(),
+            validate: (rowData) =>
+              checkStartDate(rowData)
+                ? true
+                : "Price is not set for this start date",
             render: (rowData) => new Date(rowData.startDate).toDateString(),
           },
           {
@@ -345,6 +359,7 @@ function TouristGroupsTable(props) {
           {
             title: "Schedule Details",
             field: "scheduleDetails",
+
             editComponent: (t) => (
               <TextareaAutosize
                 aria-label="minimum height"
@@ -358,7 +373,7 @@ function TouristGroupsTable(props) {
                 <Button
                   variant="outlined"
                   size="small"
-                  color="secondary"
+                  color="inherit"
                   onClick={() => onOpenDialog(rowData)}
                 >
                   Details

@@ -3,8 +3,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
+import MonetizationOnIcon from "@material-ui/icons/MonetizationOn";
 import MaterialTable from "material-table";
 import TableIcons from "../utilities/TableIcons";
+import ExploreIcon from "@material-ui/icons/Explore";
+import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
+import PriceList from "./PriceList";
 import DestinationDetails from "./DestinationDetails";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -17,18 +21,6 @@ async function Delete(id) {
       "Content-Type": "application/json",
     },
   });
-}
-
-async function Add(tour) {
-  fetch("http://localhost:5000/api/tour/CreateTour/", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(tour),
-  });
-  console.log(JSON.stringify(tour));
 }
 
 async function Edit(id, tour) {
@@ -80,6 +72,14 @@ function ToursTable(props) {
       })
     );
   };
+  const updateTourPriceList = (tourId, tourPriceList) => {
+    setTours(
+      tours.map((s) => {
+        if (s.tourId === tourId) s.tourPriceList = tourPriceList;
+        return s;
+      })
+    );
+  };
 
   const handleSnackBarOnClose =
     (() => {
@@ -93,6 +93,18 @@ function ToursTable(props) {
     });
   }, []);
 
+  async function Add(tour) {
+    await fetch("http://localhost:5000/api/tour/CreateTour/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(tour),
+    });
+    fetchData();
+  }
+
   async function fetchData() {
     setIsLoad(false);
     const result = await axios("http://localhost:5000/api/tour/getalltour");
@@ -102,7 +114,6 @@ function ToursTable(props) {
     setIsLoad(true);
     setTours(result.data);
     setTypeOfTourism(tourResult.data);
-    console.log(tourResult.data);
   }
 
   return (
@@ -122,14 +133,16 @@ function ToursTable(props) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              const last =
-                tours[Object.keys(tours)[Object.keys(tours).length - 1]];
-              newData.tourId = last.tourId + 1;
-              setTours([...tours, newData]);
-              Add(newData);
-              console.log(newData);
-              console.log(newData);
-              resolve();
+              setTimeout(() => {
+                Add(newData).then(() =>
+                  setTimeout(function () {
+                    fetchData();
+                    setIsLoad(false);
+                  }, 1000)
+                );
+
+                resolve();
+              }, 0);
             }),
           onRowUpdate: (newData, oldData) =>
             new Promise((resolve, reject) => {
@@ -140,14 +153,12 @@ function ToursTable(props) {
                 setTours([...dataUpdate]);
                 const sender = {
                   description: newData.description,
-                  tourId: newData.tourId,
+                  tourId: oldData.tourId,
                   tourName: newData.tourName,
-                  tourPriceId: newData.tourPriceId,
                   typesOfTourismId: newData.typesOfTourismId,
                 };
-                Edit(newData.tourId, sender);
-                console.log(sender);
-                console.log(newData);
+                console.log(oldData);
+                Edit(oldData.tourId, sender);
                 resolve();
               }, 100);
             }),
@@ -185,7 +196,7 @@ function ToursTable(props) {
             type: "numeric",
             editComponent: (t) => (
               <Select
-                value={t.value}
+                value={t.value ? t.value : " "}
                 onChange={(e) => {
                   t.onChange(e.target.value);
                   console.group(e.target.value);
@@ -210,6 +221,7 @@ function ToursTable(props) {
         ]}
         detailPanel={[
           {
+            icon: ExploreIcon,
             tooltip: "Destination",
             render: (rowData) => {
               return (
@@ -219,7 +231,27 @@ function ToursTable(props) {
                     tourDetails={rowData.tourDetailsList}
                     tourName={rowData.tourName}
                     onUpdate={updateTourDetailsList}
-                    // setIsLoad={setIsLoad}
+                    setIsLoad={setIsLoad}
+                  />
+                </div>
+              );
+            },
+          },
+          {
+            icon: MonetizationOnIcon,
+            tooltip: "Price List",
+            onClick: () => {
+              fetchData();
+            },
+            render: (rowData) => {
+              return (
+                <div>
+                  <PriceList
+                    tourId={rowData.tourId}
+                    //costDetails={rowData.tourPriceList}
+                    groupName={rowData.tourName}
+                    onUpdate={updateTourPriceList}
+                    setIsLoad={setIsLoad}
                   />
                 </div>
               );

@@ -22,13 +22,13 @@ function Routes() {
         <Redirect to="/dashboard" />
       </Route>
       <Route exact path="/dashboard">
-        <Dashboard isDarkMode={isDarkMode} title="Dashboard" />
+        <Dashboard isDarkMode={isDarkMode} />
       </Route>
       <Route exact path="/customer">
-        <CustomersTable isDarkMode={isDarkMode} title="Customer" />
+        <CustomersTable isDarkMode={isDarkMode} />
       </Route>
       <Route exact path="/staff">
-        <StaffsTable isDarkMode={isDarkMode} title="Staff" />
+        <StaffsTable isDarkMode={isDarkMode} />
       </Route>
       <Route exact path="/location">
         <LocationsTable isDarkMode={isDarkMode} />

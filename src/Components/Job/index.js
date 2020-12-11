@@ -18,18 +18,6 @@ async function Delete(id) {
   });
 }
 
-async function Add(job) {
-  fetch("http://localhost:5000/api/job/Createjob/", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(job),
-  });
-  console.log(JSON.stringify(job));
-}
-
 async function Edit(id, job) {
   fetch("http://localhost:5000/api/job/Updatejob/" + id, {
     method: "PUT",
@@ -68,6 +56,19 @@ function JobsTable(props) {
   const [jobs, setjobs] = useState([]);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
 
+  async function Add(job) {
+    fetch("http://localhost:5000/api/job/Createjob/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(job),
+    });
+    console.log(JSON.stringify(job));
+    fetchData();
+  }
+
   const handleSnackBarOnClose =
     (() => {
       setIsSnackBarOpen(false);
@@ -104,12 +105,16 @@ function JobsTable(props) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              const last =
-                jobs[Object.keys(jobs)[Object.keys(jobs).length - 1]];
-              newData.jobId = last.jobId + 1;
-              setjobs([...jobs, newData]);
-              Add(newData);
-              resolve();
+              setTimeout(() => {
+                //setjobs([...jobs, newData]);
+                Add(newData).then(() =>
+                  setTimeout(function () {
+                    fetchData();
+                  }, 1000)
+                );
+
+                resolve();
+              }, 10);
             }),
           onRowUpdate: (newData, oldData) =>
             new Promise((resolve, reject) => {
@@ -132,7 +137,7 @@ function JobsTable(props) {
                 dataDelete.splice(index, 1);
                 setData([...dataDelete]);
                 resolve();
-              }, 1000);
+              }, 100);
             }),
         }}
         columns={[{ title: "Name", field: "jobName" }]}

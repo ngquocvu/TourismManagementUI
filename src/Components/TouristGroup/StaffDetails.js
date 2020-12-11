@@ -127,7 +127,7 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
       setIsLoad(false);
       handleClick();
     });
-    setMessage("Staff [" + touristGroupId + "] 's staff has been updated ");
+    setMessage("Staff's jobs has been updated ");
     setIsOpen(false);
   };
 
@@ -138,11 +138,10 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
         <Tooltip title="Edit" arrow>
           <IconButton
             size="small"
-            color="primary"
+            color="inherit"
             variant="container    "
             endIcon={<EditIcon />}
             onClick={() => setIsOpen(true)}
-            color="secondary"
             aria-label="Edit Staff"
           >
             <EditIcon />
@@ -151,16 +150,24 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
       </ListSubheader>
       <Grid container spacing={2}>
         {staffList.map((c) => (
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <ListItem>
               <ListItemAvatar>
                 <Avatar variant="square">
                   {c.staff.fullName.split(" ").pop().charAt(0)}
                 </Avatar>
               </ListItemAvatar>
+
               <ListItemText
-                primary={c.staff.fullName + " (" + c.staff.email + ")"}
-              />{" "}
+                primary={
+                  c.staff.fullName +
+                  " (" +
+                  c.staff.jobDetailsList.map((eachJob) => {
+                    return eachJob.job.jobName;
+                  }) +
+                  ")"
+                }
+              />
             </ListItem>
           </Grid>
         ))}
@@ -173,7 +180,7 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
     <div>
       <Grid container spacing={2}>
         {allStaffs.map((eachStaff) => (
-          <Grid item xs={3} key={eachStaff.staffId}>
+          <Grid item xs={4} key={eachStaff.staffId}>
             <FormControlLabel
               key={eachStaff.staffId}
               control={
@@ -185,7 +192,14 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
                   onClick={handleCheck}
                 />
               }
-              label={eachStaff.fullName}
+              label={
+                eachStaff.fullName +
+                " (" +
+                eachStaff.jobDetailsList.map((eachJob) => {
+                  return eachJob.job.jobName;
+                }) +
+                ")"
+              }
             />
           </Grid>
         ))}
@@ -193,9 +207,8 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
           <Button
             size="small"
             variant="outlined"
-            color="primary"
-            onClick={onSubmit}
-            color="secondary"
+            onClick={() => onSubmit()}
+            color="inherit"
           >
             Update
           </Button>
@@ -203,8 +216,7 @@ function StaffDetails({ staffList, touristGroupId, onUpdate }) {
             className={classes.btn}
             size="small"
             variant="outlined"
-            color="primary"
-            color="secondary"
+            color="inherit"
             onClick={() => setIsOpen(false)}
           >
             Cancel

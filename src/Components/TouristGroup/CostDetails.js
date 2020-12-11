@@ -24,23 +24,59 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function CostDetails({ costDetails, groupId, groupName, onUpdate }) {
+function CostDetails({ groupId, groupName, onUpdate }) {
   const classes = useStyles();
-  const [costs, setCosts] = useState(costDetails);
+  const [costs, setCosts] = useState();
+  const [totalCost, setTotalCost] = useState();
   const [costType, setCostType] = useState([]);
 
-  async function Delete(id) {
-    fetch("http://localhost:5000/api/touristgroup/DeleteCostDetails/" + id, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+  useEffect(() => {
+    fetchCostType();
+    fetchTourGroupCostDetail();
+  }, []);
+
+  const fetchCostType = async () => {
+    const result = await axios("http://localhost:5000/api/cost/getallcost");
+    setCostType(result.data);
+    //console.log(result.data);
+  };
+  async function fetchTourGroupCostDetail() {
+    const result = await axios(
+      "http://localhost:5000/api/touristGroup/gettouristGroup/" + groupId
+    );
+    setCosts(result.data.costDetailsList);
+    console.log("Tourist group:");
+    setTotalCost(TotalCostFunction(result.data.costDetailsList));
+    console.log(result.data.costDetailsList);
+  }
+  const TotalCostFunction = (costList) => {
+    let total = 0;
+    costList.forEach((element) => {
+      total = element.price + total;
+      console.log(element);
     });
+    return new Intl.NumberFormat("VN-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(total);
+  };
+
+  async function Delete(id) {
+    await fetch(
+      "http://localhost:5000/api/touristgroup/DeleteCostDetails/" + id,
+      {
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    fetchTourGroupCostDetail();
   }
 
   async function Add(location) {
-    fetch("http://localhost:5000/api/touristgroup/CreateCostDetails/", {
+    await fetch("http://localhost:5000/api/touristgroup/CreateCostDetails/", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -49,52 +85,26 @@ function CostDetails({ costDetails, groupId, groupName, onUpdate }) {
       body: JSON.stringify(location),
     });
     console.log(JSON.stringify(location));
+    fetchTourGroupCostDetail();
   }
 
   async function Edit(id, cost) {
-    fetch("http://localhost:5000/api/touristgroup/UpdateCostDetails/" + id, {
-      method: "PUT",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(cost),
-    });
+    await fetch(
+      "http://localhost:5000/api/touristgroup/UpdateCostDetails/" + id,
+      {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cost),
+      }
+    );
+    fetchTourGroupCostDetail();
   }
-
-  const getTotalCost = () => {
-    let total = 0;
-    costs.forEach((element) => {
-      total = element.price + total;
-      //console.log(element);
-    });
-    return new Intl.NumberFormat("VN-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(total);
-  };
-
-  const handleBtnClick = () => {
-    //mở form thêm cost vào !!
-  };
-
-  useEffect(() => {
-    fetchCostType().then((result) => {
-      console.log(result);
-    });
-  }, []);
-
-  const fetchCostType = async () => {
-    const result = await axios("http://localhost:5000/api/cost/getallcost");
-    setCostType(result.data);
-    //console.log(result.data);
-  };
 
   return (
     <Paper variant="outlined" className={classes.main}>
-      {costDetails.map((c) => {
-        console.log(c.cost);
-      })}
       <MaterialTable
         components={{
           Container: (props) => <Paper {...props} elevation={0} />,
@@ -109,13 +119,6 @@ function CostDetails({ costDetails, groupId, groupName, onUpdate }) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              var last =
-                costs[Object.keys(costs)[Object.keys(costs).length - 1]];
-              if (last === undefined) {
-                newData.id = 1;
-              } else {
-                newData.id = last.id + 1;
-              }
               newData.touristGroupId = groupId;
               console.log(newData);
               setCosts([...costs, newData]);
@@ -211,7 +214,7 @@ function CostDetails({ costDetails, groupId, groupName, onUpdate }) {
         </Grid>
         <Grid item xs={2} sm={6}>
           <Typography variant="h6" component="h2">
-            {getTotalCost()}
+            {totalCost}
           </Typography>
         </Grid>
       </Grid>

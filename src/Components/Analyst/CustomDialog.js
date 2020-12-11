@@ -8,6 +8,13 @@ import MuiDialogActions from "@material-ui/core/DialogActions";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import Typography from "@material-ui/core/Typography";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
 
 const styles = (theme) => ({
   root: {
@@ -21,6 +28,15 @@ const styles = (theme) => ({
     color: theme.palette.grey[500],
   },
 });
+const moneyFormatter = (amount) => {
+  var formatter = new Intl.NumberFormat("vn-VN", {
+    locale: "vn",
+    currencyCode: "vnd",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+  return formatter.format(amount);
+};
 
 const DialogTitle = withStyles(styles)((props) => {
   const { children, classes, onClose, ...other } = props;
@@ -49,6 +65,7 @@ const DialogActions = withStyles((theme) => ({
   root: {
     margin: 0,
     padding: theme.spacing(1),
+    minWidth: 400,
   },
 }))(MuiDialogActions);
 
@@ -61,17 +78,39 @@ function CustomDialog({ openDialog, onCloseDialog, title, details }) {
       open={openDialog}
     >
       <DialogTitle id="customized-dialog-title" onClose={() => onCloseDialog()}>
-        <Typography gutterBottom variant="h5">
-          Tour Script
-        </Typography>
+        {title}
       </DialogTitle>
       <DialogContent dividers>
-        <Typography gutterBottom style={{ whiteSpace: "pre-line" }}>
-          {details}
+        <Typography gutterBottom>
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+
+                  <TableCell align="right">Name</TableCell>
+                  <TableCell align="right">Price</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {details.map((row) => (
+                  <TableRow key={row.name}>
+                    <TableCell component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="right">{row.costDetailsName}</TableCell>
+                    <TableCell align="right">
+                      {moneyFormatter(row.price) + " đ"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={() => onCloseDialog()} color="inherit">
+        <Button autoFocus color="primary" onClick={() => onCloseDialog()}>
           Close
         </Button>
       </DialogActions>

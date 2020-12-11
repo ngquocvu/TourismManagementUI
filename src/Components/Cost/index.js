@@ -18,18 +18,6 @@ async function Delete(id) {
   });
 }
 
-async function Add(cost) {
-  fetch("http://localhost:5000/api/cost/Createcost/", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(cost),
-  });
-  console.log(JSON.stringify(cost));
-}
-
 async function Edit(id, cost) {
   fetch("http://localhost:5000/api/cost/Updatecost/" + id, {
     method: "PUT",
@@ -70,6 +58,19 @@ function CostsTable(props) {
   const [costs, setcosts] = useState([]);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
 
+  async function Add(cost) {
+    fetch("http://localhost:5000/api/cost/Createcost/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(cost),
+    });
+    fetchData();
+    console.log(JSON.stringify(cost));
+  }
+
   const handleSnackBarOnClose =
     (() => {
       setIsSnackBarOpen(false);
@@ -107,12 +108,16 @@ function CostsTable(props) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              const last =
-                costs[Object.keys(costs)[Object.keys(costs).length - 1]];
-              newData.costId = last.costId + 1;
-              setcosts([...costs, newData]);
-              Add(newData);
-              resolve();
+              setTimeout(() => {
+                Add(newData).then(() =>
+                  setTimeout(function () {
+                    fetchData();
+                    setIsLoad(false);
+                  }, 1000)
+                );
+
+                resolve();
+              }, 100);
             }),
           onRowUpdate: (newData, oldData) =>
             new Promise((resolve, reject) => {
@@ -141,11 +146,6 @@ function CostsTable(props) {
             }),
         }}
         columns={[
-          {
-            title: "ID",
-            field: "costId",
-            editable: "never",
-          },
           { title: "Name", field: "costName" },
 
           {

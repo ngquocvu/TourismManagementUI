@@ -1,102 +1,78 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
+import { useHistory } from "react-router-dom";
+import GradeIcon from "@material-ui/icons/Grade";
 import Title from "./Title";
-
-// Generate Order Data
-function createData(id, date, name, shipTo, paymentMethod, amount) {
-  return { id, date, name, shipTo, paymentMethod, amount };
-}
-
-const rows = [
-  createData(
-    0,
-    "16 Mar, 2019",
-    "Trần Hữu Giang",
-    "thgiang@gmail.com",
-    "Saigon - Nha Trang",
-    450
-  ),
-  createData(
-    0,
-    "22 Jun, 2020",
-    "Vũ Đức Thuận",
-    "thuanvu@gmail.com",
-    "Saigon - Đà Lạt",
-    112.44
-  ),
-  createData(
-    0,
-    "1 Oct, 2020",
-    "Trần Hữu Giang",
-    "thuanvu@gmail.com",
-    "Saigon - Singapore",
-    312.44
-  ),
-  createData(
-    0,
-    "16 Mar, 2019",
-    "Trần Hữu Giang",
-    "thuanvu@gmail.com",
-    "Saigon - Nha Trang",
-    312.44
-  ),
-  createData(
-    0,
-    "16 Mar, 2019",
-    "Trần Hữu Giang",
-    "Saigon, Vietnam",
-    "Saigon - Nha Trang",
-    312.44
-  ),
-];
-
-function preventDefault(event) {
-  event.preventDefault();
-}
+import Chip from "@material-ui/core/Chip";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
-    marginTop: theme.spacing(3),
+    marginLeft: theme.spacing(2),
+  },
+  root: {
+    justifyContent: "center",
+    textAlign: "center",
   },
 }));
 
 export default function Orders() {
+  const [data, setData] = useState([]);
+  const history = useHistory();
+
+  async function fetchTourGroupPriceList() {
+    const result = await axios("http://localhost:5000/api/tour/getalltour/");
+    setData(result.data);
+  }
+  useEffect(() => {
+    fetchTourGroupPriceList();
+  }, []);
+
   const classes = useStyles();
   return (
     <React.Fragment>
-      <Title>Recent Orders</Title>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Tour</TableCell>
-            <TableCell align="right">Total</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.date}</TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.shipTo}</TableCell>
-              <TableCell>{row.paymentMethod}</TableCell>
-              <TableCell align="right">{row.amount}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className={classes.seeMore}>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          See more orders
-        </Link>
+      <div className={classes.root}>
+        <Chip
+          color="primary"
+          onClick={() => history.push("/analyst")}
+          label="Analyst board"
+          clickable
+          size="medium"
+          className={classes.seeMore}
+          icon={<GradeIcon />}
+        />
+        <Chip
+          color="primary"
+          label="Tour"
+          clickable
+          size="medium"
+          onClick={() => history.push("/tour")}
+          className={classes.seeMore}
+          icon={<GradeIcon />}
+        />
+        <Chip
+          color="primary"
+          label="Tourist group"
+          clickable
+          size="medium"
+          onClick={() => history.push("/tourist-group")}
+          className={classes.seeMore}
+          icon={<GradeIcon />}
+        />
+        <Chip
+          color="primary"
+          label="Staff"
+          clickable
+          onClick={() => history.push("/staff")}
+          size="medium"
+          className={classes.seeMore}
+          icon={<GradeIcon />}
+        />
       </div>
     </React.Fragment>
   );

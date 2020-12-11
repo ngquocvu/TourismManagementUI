@@ -113,7 +113,7 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
       setIsLoad(false);
       handleClick();
     });
-    setMessage("Staff [" + staffId + "] 's job has been updated ");
+    setMessage("Staff's job has been updated ");
 
     //fetchStaff();
   };
@@ -142,9 +142,9 @@ function JobDetails({ selfJob, staffId, fetchStaff, onUpdate }) {
       ))}
       <ul>
         <Button
-          vvariant="outlined"
+          variant="outlined"
           size="medium"
-          color="secondary"
+          color="inherit"
           onClick={onSubmit}
         >
           Update

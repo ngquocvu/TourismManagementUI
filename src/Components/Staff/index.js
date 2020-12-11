@@ -138,18 +138,26 @@ function StaffsTable(props) {
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              var last =
-                staffs[Object.keys(staffs)[Object.keys(staffs).length - 1]];
-              if (last === undefined) {
-                newData.staffId = 1;
-              } else {
-                newData.staffId = last.staffId + 1;
-              }
-              console.log(newData.staffId);
+              setTimeout(() => {
+                var last =
+                  staffs[Object.keys(staffs)[Object.keys(staffs).length - 1]];
+                if (last === undefined) {
+                  newData.staffId = 1;
+                } else {
+                  newData.staffId = last.staffId + 1;
+                }
+                console.log(newData.staffId);
 
-              setstaffs([...staffs, newData]);
-              Add(newData).then(fetchData());
-              resolve();
+                setstaffs([...staffs, newData]);
+                Add(newData).then(() =>
+                  setTimeout(function () {
+                    fetchData();
+                    setIsLoad(false);
+                  }, 1000)
+                );
+
+                resolve();
+              }, 1000);
             }),
           onRowUpdate: (newData, oldData) =>
             new Promise((resolve, reject) => {

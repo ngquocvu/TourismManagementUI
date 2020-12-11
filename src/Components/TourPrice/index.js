@@ -6,10 +6,12 @@ import axios from "axios";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import SnackBarC from "../SnackBarC";
 import MaterialTable from "material-table";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
 import TableIcons from "../utilities/TableIcons";
 
 async function Delete(id) {
-  fetch("http://localhost:5000/api/tourprice/Deletetourprice/" + id, {
+  fetch("http://localhost:5000/api/tourPrice/Deletetourprice/" + id, {
     method: "DELETE",
     headers: {
       Accept: "application/json",
@@ -18,26 +20,26 @@ async function Delete(id) {
   });
 }
 
-async function Add(tourprice) {
-  fetch("http://localhost:5000/api/tourprice/Createtourprice/", {
+async function Add(tourPrice) {
+  fetch("http://localhost:5000/api/tourPrice/Createtourprice/", {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(tourprice),
+    body: JSON.stringify(tourPrice),
   });
-  console.log(JSON.stringify(tourprice));
+  console.log(JSON.stringify(tourPrice));
 }
 
-async function Edit(id, tourprice) {
-  fetch("http://localhost:5000/api/tourprice/Updatetourprice/" + id, {
+async function Edit(id, tourPrice) {
+  fetch("http://localhost:5000/api/tourPrice/Updatetourprice/" + id, {
     method: "PUT",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(tourprice),
+    body: JSON.stringify(tourPrice),
   });
 }
 
@@ -67,8 +69,19 @@ function TourPricesTable(props) {
   const [data, setData] = useState([]);
   const classes = useStyles();
   const [isLoad, setIsLoad] = useState(false);
-  const [tourprices, settourprices] = useState([]);
+  const [tour, setTour] = useState([]);
+  const [tourPrices, setTourPrices] = useState([]);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState(false);
+  function getTourName(tourId) {
+    let name;
+    tour.forEach((ele) => {
+      if (ele.tourId === tourId) {
+        console.log(ele.tourName);
+        name = ele.tourName;
+      }
+    });
+    return name;
+  }
 
   const handleSnackBarOnClose =
     (() => {
@@ -78,17 +91,22 @@ function TourPricesTable(props) {
 
   useEffect(() => {
     fetchData().then(() => {
-      console.log(tourprices);
+      console.log(tourPrices);
     });
+    fetchTourData();
   }, []);
+  async function fetchTourData() {
+    const result = await axios("http://localhost:5000/api/tour/getalltour");
+    return setTour(result.data);
+  }
 
   async function fetchData() {
     setIsLoad(false);
     const result = await axios(
-      "http://localhost:5000/api/tourprice/getalltourprice"
+      "http://localhost:5000/api/tourPrice/getalltourprice"
     );
     setIsLoad(true);
-    settourprices(result.data);
+    setTourPrices(result.data);
   }
 
   return (
@@ -101,30 +119,33 @@ function TourPricesTable(props) {
       <MaterialTable
         title="Tour Price"
         icons={TableIcons}
-        data={tourprices.map((d) => ({ ...d }))}
+        data={tourPrices.map((d) => ({ ...d }))}
         options={{
           actionsColumnIndex: -1,
         }}
         editable={{
           onRowAdd: (newData) =>
             new Promise((resolve, reject) => {
-              const last =
-                tourprices[
-                  Object.keys(tourprices)[Object.keys(tourprices).length - 1]
-                ];
-              newData.tourpriceId = last.tourpriceId + 1;
-              settourprices([...tourprices, newData]);
-              Add(newData);
+              setTourPrices([...tourPrices, newData]);
+              Add(newData).then(fetchData);
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
             new Promise((resolve, reject) => {
               setTimeout(() => {
-                const dataUpdate = [...tourprices];
+                const dataUpdate = [...tourPrices];
                 const index = oldData.tableData.id;
                 dataUpdate[index] = newData;
-                settourprices([...dataUpdate]);
-                Edit(oldData.tourpriceId, newData);
+                setTourPrices([...dataUpdate]);
+                const sender = {
+                  tourPriceId: oldData.tourPriceId,
+                  tourId: newData.tourId,
+                  startDate: newData.startDate,
+                  endDate: newData.endDate,
+                  price: newData.price,
+                };
+                console.log(sender);
+                Edit(oldData.tourPriceId, sender);
                 resolve();
               }, 100);
             }),
@@ -133,10 +154,10 @@ function TourPricesTable(props) {
               setTimeout(() => {
                 const dataDelete = [...data];
                 const index = oldData.tableData.id;
-                Delete(oldData.tourpriceId);
-                settourprices(
-                  tourprices.filter(
-                    (item) => item.tourpriceId !== oldData.tourpriceId
+                Delete(oldData.tourPriceId);
+                setTourPrices(
+                  tourPrices.filter(
+                    (item) => item.tourPriceId !== oldData.tourPriceId
                   )
                 );
                 dataDelete.splice(index, 1);
@@ -147,9 +168,25 @@ function TourPricesTable(props) {
         }}
         columns={[
           {
-            title: "ID",
-            field: "tourPriceId",
-            editable: "never",
+            title: "Tour Name",
+            field: "tourId",
+            type: "numeric",
+            editComponent: (t) => (
+              <Select
+                value={t.value}
+                onChange={(e) => {
+                  t.onChange(e.target.value);
+                  console.group(e.target.value);
+                }}
+              >
+                {tour.map((each) => (
+                  <MenuItem value={each.tourId}>{each.tourName}</MenuItem>
+                ))}
+              </Select>
+            ),
+            render: (rowData) => {
+              return getTourName(rowData.tourId);
+            },
           },
           {
             title: "Price",
@@ -165,22 +202,28 @@ function TourPricesTable(props) {
           {
             title: "Start date",
             field: "startDate",
-            initialEditValue: new Date().toISOString(),
-            type: "date",
+            initialEditValue: () => {
+              var d = new Date();
+              d.setHours(0, 0, 0, 0);
+              return d.toISOString();
+            },
+            type: "datetime",
             render: (rowData) => new Date(rowData.startDate).toDateString(),
           },
           {
             title: "End date",
             field: "endDate",
-            initialEditValue: new Date().toISOString(),
-            type: "date",
-            initialEditValue: new Date().toISOString(),
+            initialEditValue: () => {
+              var d = new Date();
+              d.setHours(1, 1, 1, 1);
+              return d.toISOString();
+            },
+            type: "datetime",
             render: (rowData) => new Date(rowData.endDate).toDateString(),
             validate: (rowData) =>
               new Date(rowData.endDate) < new Date(rowData.startDate)
                 ? "Start date must be after end date!"
                 : true,
-            render: (rowData) => new Date(rowData.endDate).toDateString(),
           },
         ]}
       />

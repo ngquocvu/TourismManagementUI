@@ -130,7 +130,7 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
       setIsLoad(false);
       handleClick();
     });
-    setMessage("Staff [" + touristGroupId + "] 's customer has been updated ");
+    setMessage("Customer has been updated ");
     setIsOpen(false);
   };
 
@@ -141,11 +141,10 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
         <Tooltip title="Edit" arrow>
           <IconButton
             size="small"
-            color="primary"
             variant="container    "
             endIcon={<EditIcon />}
             onClick={() => setIsOpen(true)}
-            color="secondary"
+            color="inherit"
             aria-label="Edit Customer"
           >
             <EditIcon />
@@ -198,9 +197,8 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
           <Button
             size="small"
             variant="outlined"
-            color="primary"
-            onClick={onSubmit}
-            color="secondary"
+            color="inherit"
+            onClick={() => onSubmit()}
           >
             Update
           </Button>
@@ -208,8 +206,7 @@ function CustomerDetails({ customerList, touristGroupId, onUpdate }) {
             className={classes.btn}
             size="small"
             variant="outlined"
-            color="primary"
-            color="secondary"
+            color="inherit"
             onClick={() => setIsOpen(false)}
           >
             Cancel

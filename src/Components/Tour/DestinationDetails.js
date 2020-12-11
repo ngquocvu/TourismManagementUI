@@ -8,7 +8,7 @@ import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import MaterialTable from "material-table";
 import TableIcons from "../utilities/TableIcons";
-import TextField from "@material-ui/core/TextField";
+import MonetizationOnIcon from "@material-ui/icons/MonetizationOn";
 import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
@@ -29,28 +29,30 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
+function DestinationDetails({ tourId, tourName, onUpdate }) {
   const classes = useStyles();
-  const [destinations, setDestinations] = useState(tourDetails);
+  const [destinations, setDestinations] = useState([]);
   const [places, setPlaces] = useState([]);
   const [locations, setLocations] = useState([]);
   const [cities, setCities] = useState([]);
   const [selCity, setSelCity] = useState();
   const [selPlace, setSelPlace] = useState();
   const [inOrder, setInOrder] = useState();
+  const [errorMessage, setErrorMessage] = useState();
 
   async function Delete(id) {
-    fetch("http://localhost:5000/api/tour/DeleteTourDetails/" + id, {
+    await fetch("http://localhost:5000/api/tour/DeleteTourDetails/" + id, {
       method: "DELETE",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
     });
+    fetchTourDetails();
   }
 
   async function Add(location) {
-    fetch("http://localhost:5000/api/tour/CreateTourDetails/", {
+    await fetch("http://localhost:5000/api/tour/CreateTourDetails/", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -59,6 +61,7 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
       body: JSON.stringify(location),
     });
     console.log(JSON.stringify(location));
+    fetchTourDetails();
   }
 
   async function fetchLocation() {
@@ -68,6 +71,12 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
     setLocations(result.data);
     const unique = [...new Set(result.data.map((item) => item.city))];
     setCities(unique);
+  }
+  async function fetchTourDetails() {
+    const result = await axios(
+      "http://localhost:5000/api/tour/gettour/" + tourId
+    );
+    setDestinations(result.data.tourDetailsList);
   }
 
   function getSelectedDestination(sellectedCity) {
@@ -84,24 +93,24 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
     const sender = {
       locationId: selPlace,
       tourId: tourId,
-      inOrder: parseInt(inOrder),
     };
-    var last =
-      tourDetails[
-        Object.keys(tourDetails)[Object.keys(tourDetails).length - 1]
-      ];
-    if (last === undefined) {
-      sender.id = 1;
-    } else {
-      sender.id = last.id + 1;
+    let validated = true;
+    destinations.forEach((place) => {
+      if (selPlace === place.locationId) {
+        setErrorMessage("Duplicate place in tour !");
+        validated = false;
+      }
+    });
+    if (validated) {
+      setDestinations([...destinations], sender);
+      Add(sender);
+      setErrorMessage("");
     }
-
-    Add(sender).then(() => fetchLocation());
   }
 
   useEffect(() => {
     fetchLocation();
-    console.log(tourDetails);
+    fetchTourDetails();
   }, []);
 
   return (
@@ -110,15 +119,11 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
         title={"Destination of " + tourName}
         icons={TableIcons}
         //data=staffs.map((d) => ({ ...d }))
-        data={tourDetails}
+        data={destinations}
         options={{
           actionsColumnIndex: -1,
         }}
         columns={[
-          {
-            title: "Priority",
-            field: "locationId",
-          },
           {
             title: "Place",
             field: "locationId",
@@ -136,6 +141,9 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
           onRowDelete: (oldData) =>
             new Promise((resolve, reject) => {
               setTimeout(() => {
+                Delete(oldData.id).then(() => {
+                  fetchTourDetails();
+                });
                 resolve();
               }, 100);
             }),
@@ -165,9 +173,10 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
           <Typography component="h5">Select Place</Typography>
           <Typography variant="h6" component="h2"></Typography>
           <Select
-            value={selPlace ? selPlace : 1}
+            value={selPlace ? selPlace : ""}
             onChange={(e) => {
               setSelPlace(e.target.value);
+              console.log(e.target.value);
             }}
           >
             {places.map((each) => (
@@ -176,13 +185,11 @@ function DestinationDetails({ tourDetails, tourId, tourName, onUpdate }) {
           </Select>
         </Grid>
         <Grid item xs={2} sm={2}>
-          <TextField
-            id="standard-basic"
-            type="number"
-            label="Prority"
-            onChange={(e) => setInOrder(e.target.value)}
-          />
+          <Typography component="h6" color="inherit">
+            {errorMessage}
+          </Typography>
         </Grid>
+
         <Grid item xs={2} sm={12}>
           <Button
             size="small"
